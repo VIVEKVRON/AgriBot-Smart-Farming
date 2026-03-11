@@ -1,0 +1,233 @@
+<style>
+    /* Floating Chatbot CSS */
+    #chat-widget {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 380px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        display: none;
+        flex-direction: column;
+        overflow: hidden;
+        z-index: 1000;
+        border: 1px solid #e0e0e0;
+    }
+    #chat-header {
+        background: #2e7d32;
+        color: white;
+        padding: 15px;
+        font-weight: bold;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    #chat-header button {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        line-height: 1;
+    }
+    #chat-messages {
+        height: 350px;
+        overflow-y: auto;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        background: #f8f9fa;
+    }
+    .message {
+        max-width: 85%;
+        padding: 10px 15px;
+        border-radius: 18px;
+        font-size: 14px;
+        line-height: 1.4;
+    }
+    .user-message { background: #2e7d32; color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+    .bot-message { background: #e9ecef; color: #333; align-self: flex-start; border-bottom-left-radius: 4px; }
+    
+    /* Input Area Styling */
+    #chat-input-area { display: flex; padding: 10px; background: white; border-top: 1px solid #eee; align-items: center;}
+    #chat-input { flex-grow: 1; border: 1px solid #ccc; border-radius: 20px; padding: 10px 15px; outline: none; }
+    #chat-input:focus { border-color: #2e7d32; }
+    #send-btn, #camera-btn { background: none; border: none; font-size: 1.5em; cursor: pointer; color: #2e7d32; padding: 0 10px;}
+    
+    /* Image Preview Styling */
+    #image-preview-container { display: none; padding: 10px; background: #f1f8e9; border-top: 1px solid #ddd; text-align: center; }
+    #image-preview { max-height: 120px; border-radius: 8px; margin: 0 auto 10px auto; display: block; }
+    .preview-btn { padding: 5px 15px; border: none; border-radius: 4px; cursor: pointer; color: white; font-weight: bold; }
+    
+    /* Toggle Button */
+    #chat-toggle {
+        position: fixed; bottom: 25px; right: 25px; background: #2e7d32; color: white; border: none;
+        border-radius: 50%; width: 65px; height: 65px; font-size: 30px; cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 999; transition: 0.3s;
+    }
+    #chat-toggle:hover { transform: scale(1.05); }
+</style>
+
+<button id="chat-toggle" onclick="toggleChat()">💬</button>
+
+<div id="chat-widget">
+    <div id="chat-header">
+        <span>🌱 AgriBot Assistant</span>
+        <button onclick="toggleChat()">&times;</button>
+    </div>
+    
+    <div id="chat-messages">
+        <div class="message bot-message">Namaste! I am AgriBot. Ask me about crops, fertilizers, or <strong>upload a photo</strong> of a diseased plant!</div>
+    </div>
+
+    <div id="image-preview-container">
+        <img id="image-preview" src="" alt="Selected Plant" />
+        <button onclick="sendImage()" class="preview-btn" style="background: #4CAF50;">🔍 Analyze Disease</button>
+        <button onclick="cancelImage()" class="preview-btn" style="background: #f44336;">Cancel</button>
+    </div>
+
+    <div id="chat-input-area">
+        <input type="file" id="image-upload" accept="image/*" style="display: none;" />
+        <button id="camera-btn" onclick="document.getElementById('image-upload').click()" title="Upload Photo">📷</button>
+        <input type="text" id="chat-input" placeholder="Type your question..." onkeypress="handleEnter(event)">
+        <button id="send-btn" onclick="sendTextMessage()">➤</button>
+    </div>
+</div>
+
+<script>
+    // --- 1. UI Toggles ---
+    function toggleChat() {
+        const chatWidget = document.getElementById('chat-widget');
+        const chatToggle = document.getElementById('chat-toggle');
+        if (chatWidget.style.display === 'none' || chatWidget.style.display === '') {
+            chatWidget.style.display = 'flex';
+            chatToggle.style.display = 'none';
+            document.getElementById('chat-input').focus();
+        } else {
+            chatWidget.style.display = 'none';
+            chatToggle.style.display = 'block';
+        }
+    }
+
+    // --- 2. CSRF Helper ---
+    function getCSRFToken() {
+        return document.querySelector('[name=csrfmiddlewaretoken]').value;
+    }
+
+    // --- 3. UI Helpers ---
+    function addMessageToUI(text, className, id = null) {
+        const messagesDiv = document.getElementById('chat-messages');
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `message ${className}`;
+        msgDiv.innerHTML = text; 
+        if (id) msgDiv.id = id;
+        messagesDiv.appendChild(msgDiv);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        return id || 'msg-' + Date.now();
+    }
+
+    // --- 4. TEXT MESSAGE LOGIC (NLP Master RAG Pipeline) ---
+    function handleEnter(event) { if (event.key === 'Enter') sendTextMessage(); }
+
+    async function sendTextMessage() {
+        const inputField = document.getElementById('chat-input');
+        const message = inputField.value.trim();
+        if (!message) return;
+
+        addMessageToUI(message, 'user-message');
+        inputField.value = '';
+
+        const loadingId = 'loading-' + Date.now();
+        addMessageToUI('...', 'bot-message', loadingId);
+
+        try {
+            // Sends text to your NLP + ML RAG Pipeline endpoint
+            const response = await fetch('/api/chat/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': getCSRFToken()
+                },
+                body: new URLSearchParams({ 'message': message })
+            });
+
+            const data = await response.json();
+            document.getElementById(loadingId).remove();
+
+            if (data.response) {
+                let formattedText = data.response.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+                addMessageToUI(formattedText, 'bot-message');
+            } else {
+                addMessageToUI("Sorry, I encountered an error processing your query.", 'bot-message');
+            }
+        } catch (error) {
+            document.getElementById(loadingId).remove();
+            addMessageToUI("Error connecting to server. Is the backend running?", 'bot-message');
+        }
+    }
+
+    // --- 5. IMAGE MESSAGE LOGIC (ResNet Disease Detection) ---
+    const imageUpload = document.getElementById('image-upload');
+    const previewContainer = document.getElementById('image-preview-container');
+    const imagePreview = document.getElementById('image-preview');
+
+    imageUpload.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                previewContainer.style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    function cancelImage() {
+        imageUpload.value = ""; 
+        previewContainer.style.display = 'none'; 
+    }
+
+    async function sendImage() {
+        const file = imageUpload.files[0];
+        if (!file) return;
+
+        addMessageToUI(`<img src="${imagePreview.src}" style="max-width: 100%; border-radius: 8px;">`, 'user-message');
+        cancelImage(); 
+
+        const loadingId = addMessageToUI('🔍 Analyzing image...', 'bot-message', 'loading-' + Date.now());
+
+        const formData = new FormData();
+        formData.append('plant_image', file);
+
+        try {
+            // Sends image to the new ResNet CNN endpoint we built
+            const response = await fetch('/api/detect-disease/', {
+                method: 'POST',
+                headers: { 'X-CSRFToken': getCSRFToken() },
+                body: formData,
+            });
+
+            const data = await response.json();
+            document.getElementById(loadingId).remove();
+
+            if (data.status === 'success') {
+                const resultHtml = `
+                    <div style="margin-bottom: 8px; background: white; padding: 5px; border-radius: 4px; border: 1px solid #ccc;">
+                        <strong>Diagnosis:</strong> ${data.disease} <br>
+                        <small>Confidence: ${data.confidence}</small>
+                    </div>
+                    <div>${data.bot_response.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>')}</div>
+                `;
+                addMessageToUI(resultHtml, 'bot-message');
+            } else {
+                addMessageToUI(`❌ Error: ${data.message}`, 'bot-message');
+            }
+        } catch (error) {
+            document.getElementById(loadingId).remove();
+            addMessageToUI('❌ Failed to connect to the server.', 'bot-message');
+        }
+    }
+</script>

@@ -1,0 +1,9 @@
+Django>=5.0
+google-genai
+python-dotenv
+pandas
+numpy
+scikit-learn
+xgboost
+tensorflow
+pillow

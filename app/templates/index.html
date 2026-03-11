@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="text-center mb-5">
+    <h1 class="display-4 fw-bold" style="color: #2e7d32;">Welcome to AgriBot</h1>
+    <p class="lead text-muted">Your AI-powered assistant for smarter, data-driven farming.</p>
+</div>
+
+<div class="row g-4 justify-content-center">
+    
+    <div class="col-md-6 col-lg-5">
+        <div class="card h-100 shadow-sm border-0 text-center p-4">
+            <div class="card-body">
+                <div class="mb-3" style="font-size: 3rem;">🌾</div>
+                <h4 class="card-title fw-bold">Crop Recommendation</h4>
+                <p class="card-text text-muted mb-4">Input your soil nutrients and weather data to discover the most profitable crop to plant.</p>
+                <a href="{% url 'predict_crop' %}" class="btn btn-outline-success px-4 rounded-pill">Try it now</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-5">
+        <div class="card h-100 shadow-sm border-0 text-center p-4">
+            <div class="card-body">
+                <div class="mb-3" style="font-size: 3rem;">🧪</div>
+                <h4 class="card-title fw-bold">Fertilizer Recommendation</h4>
+                <p class="card-text text-muted mb-4">Discover the exact NPK nutrient blend your soil needs to maximize growth for your target crop.</p>
+                <a href="{% url 'predict_fertilizer' %}" class="btn btn-outline-success px-4 rounded-pill">Try it now</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-5">
+        <div class="card h-100 shadow-sm border-0 text-center p-4">
+            <div class="card-body">
+                <div class="mb-3" style="font-size: 3rem;">🍂</div>
+                <h4 class="card-title fw-bold">Disease Detection</h4>
+                <p class="card-text text-muted mb-4">Upload a photo of a sick plant leaf and our deep learning model will diagnose the disease.</p>
+                <a href="{% url 'predict_disease' %}" class="btn btn-outline-success px-4 rounded-pill">Try it now</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-5">
+        <div class="card h-100 shadow-sm border-0 text-center p-4">
+            <div class="card-body">
+                <div class="mb-3" style="font-size: 3rem;">📈</div>
+                <h4 class="card-title fw-bold">Yield Prediction</h4>
+                <p class="card-text text-muted mb-4">Estimate your harvest volume based on historical weather, pesticide usage, and crop type.</p>
+                <a href="{% url 'predict_yield' %}" class="btn btn-outline-success px-4 rounded-pill">Try it now</a>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0 mb-5">
+            <div class="card-body p-5">
+                <h2 class="text-center text-success mb-4">📈 Crop Yield Prediction</h2>
+                <p class="text-center text-muted mb-4">Estimate your harvest yield (in hg/ha) based on historical weather, pesticide usage, and region.</p>
+
+                <form method="POST">
+                    {% csrf_token %} 
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Year</label>
+                            <input type="number" name="Year" class="form-control" value="2026" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Average Rainfall (mm/year)</label>
+                            <input type="number" step="any" name="average_rain_fall_mm_per_year" class="form-control" placeholder="e.g. 1083" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Pesticides (Tonnes)</label>
+                            <input type="number" step="any" name="pesticides_tonnes" class="form-control" placeholder="e.g. 45000" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Average Temperature (°C)</label>
+                            <input type="number" step="any" name="avg_temp" class="form-control" placeholder="e.g. 26.5" required>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Country/Area</label>
+                            <select name="Area" class="form-select" required>
+                                <option value="India">India</option>
+                                <option value="Brazil">Brazil</option>
+                                <option value="United States of America">United States</option>
+                                <option value="China">China</option>
+                                <option value="Australia">Australia</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Crop/Item</label>
+                            <select name="Item" class="form-select" required>
+                                <option value="Rice, paddy">Rice, paddy</option>
+                                <option value="Wheat">Wheat</option>
+                                <option value="Maize">Maize (Corn)</option>
+                                <option value="Soybeans">Soybeans</option>
+                                <option value="Potatoes">Potatoes</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-success btn-lg">Predict Yield</button>
+                    </div>
+                </form>
+
+                {% if result %}
+                <div class="alert alert-success mt-4 text-center shadow-sm">
+                    <h4 class="mb-0">Estimated Yield: <strong>{{ result }}</strong></h4>
+                </div>
+                {% endif %}
+
+                {% if error %}
+                <div class="alert alert-danger mt-4 text-center shadow-sm">
+                    <p class="mb-0">{{ error }}</p>
+                </div>
+                {% endif %}
+                
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

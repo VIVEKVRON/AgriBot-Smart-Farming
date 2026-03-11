@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0 mb-5">
+            <div class="card-body p-5">
+                <h2 class="text-center text-success mb-4">🌾 Crop Recommendation</h2>
+                <p class="text-center text-muted mb-4">Enter your soil nutrients and local weather parameters to get the optimal crop recommendation from our ML model.</p>
+
+                <form method="POST">
+                    {% csrf_token %} 
+                    
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Nitrogen (N)</label>
+                            <input type="number" step="any" name="nitrogen" class="form-control" placeholder="e.g. 90" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Phosphorous (P)</label>
+                            <input type="number" step="any" name="phosphorous" class="form-control" placeholder="e.g. 42" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Potassium (K)</label>
+                            <input type="number" step="any" name="potassium" class="form-control" placeholder="e.g. 43" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Temperature (°C)</label>
+                            <input type="number" step="any" name="temperature" class="form-control" placeholder="e.g. 20.8" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Humidity (%)</label>
+                            <input type="number" step="any" name="humidity" class="form-control" placeholder="e.g. 82.0" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">pH Level</label>
+                            <input type="number" step="any" name="ph" class="form-control" placeholder="e.g. 6.5" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Rainfall (mm)</label>
+                            <input type="number" step="any" name="rainfall" class="form-control" placeholder="e.g. 202.9" required>
+                        </div>
+                    </div>
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-success btn-lg">Predict Best Crop</button>
+                    </div>
+                </form>
+
+                {% if result %}
+                <div class="alert alert-success mt-4 text-center shadow-sm">
+                    <h4 class="mb-0">Recommended Crop: <strong>{{ result }}</strong></h4>
+                </div>
+                {% endif %}
+
+                {% if error %}
+                <div class="alert alert-danger mt-4 text-center shadow-sm">
+                    <p class="mb-0">{{ error }}</p>
+                </div>
+                {% endif %}
+                
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

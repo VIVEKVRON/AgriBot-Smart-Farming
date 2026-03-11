@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0 rounded-lg mt-5">
+            <div class="card-header" style="background-color: #2e7d32; color: white;">
+                <h3 class="text-center font-weight-light my-2">Fertilizer Recommendation</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{% url 'predict_fertilizer' %}">
+                    {% csrf_token %}
+    
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="nitrogen" class="form-label">Nitrogen (N)</label>
+                            <input type="number" step="any" class="form-control" id="nitrogen" name="nitrogen" required placeholder="e.g., 50">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="phosphorus" class="form-label">Phosphorus (P)</label>
+                            <input type="number" step="any" class="form-control" id="phosphorus" name="phosphorus" required placeholder="e.g., 30">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="potassium" class="form-label">Potassium (K)</label>
+                            <input type="number" step="any" class="form-control" id="potassium" name="potassium" required placeholder="e.g., 40">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <label for="temperature" class="form-label">Temperature (°C)</label>
+                            <input type="number" step="any" class="form-control" id="temperature" name="temperature" required placeholder="e.g., 26.5">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="humidity" class="form-label">Humidity (%)</label>
+                            <input type="number" step="any" class="form-control" id="humidity" name="humidity" required placeholder="e.g., 75">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="ph" class="form-label">Soil pH</label>
+                            <input type="number" step="any" class="form-control" id="ph" name="ph" required placeholder="e.g., 6.8">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="rainfall" class="form-label">Rainfall (mm)</label>
+                            <input type="number" step="any" class="form-control" id="rainfall" name="rainfall" required placeholder="e.g., 110">
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 mt-4">
+                        <button class="btn btn-success" style="background-color: #2e7d32;" type="submit">Predict Fertilizer</button>
+                    </div>
+                </form>
+
+                {% if result %}
+                <div class="alert alert-info mt-4 text-center shadow-sm">
+                    <h5 class="text-muted mb-2">Recommended Fertilizer:</h5>
+                    <h2 class="display-5 text-success mb-3"><strong>{{ result }}</strong></h2>
+                    
+                    {% if explanation %}
+                    <hr class="my-3">
+                    <div class="text-start px-3">
+                        <p class="mb-0" style="font-size: 1.1em; color: #2e7d32;">
+                            💡 <strong>What this means:</strong> <span class="text-dark">{{ explanation|safe }}</span>
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                {% if error %}
+                <div class="alert alert-danger mt-4">
+                    {{ error }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

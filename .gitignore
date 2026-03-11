@@ -1,0 +1,19 @@
+# Python and Django
+__pycache__/
+*.pyc
+db.sqlite3
+.venv/
+venv/
+env/
+
+# Media and Uploads
+media/
+media/*
+
+# Heavy Machine Learning Models (GitHub limits files to 100MB)
+ml_models/*.h5
+ml_models/*.pkl
+ml_models/faiss_agri_index/
+
+# Environment Variables
+.env
