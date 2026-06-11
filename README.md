@@ -104,6 +104,13 @@ Navigate to `http://127.0.0.1:8000/` in your web browser.
 * **Disease Detection:** Use the upload button to submit a photo of a diseased plant leaf. The ResNet50 model will analyze it and Gemini will provide treatment steps.
 * **Voice Playback:** Ensure your browser allows audio playback. Select your preferred language (e.g., Kannada, Hindi) from the UI dropdown to hear the Neural TTS response.
 
+## 👥 Team & Roles
+
+* **VIVEK V RON:** Backend Development
+* **VIVEK TUBAKI:** Backend Development
+* **Vishwanath Reddy:** Frontend Development & Testing
+* **Vishwas Havalada:** Frontend Development & Testing
+
 ## 👨‍💻 Author
 
 **Vivek V Ron** *Undergraduate Student, Computer Science and Engineering*
