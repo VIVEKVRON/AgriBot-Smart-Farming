@@ -108,8 +108,8 @@ Navigate to `http://127.0.0.1:8000/` in your web browser.
 
 * **VIVEK V RON:** Backend Development
 * **VIVEK TUBAKI:** Backend Development
-* **Vishwanath Reddy:** Frontend Development & Testing
-* **Vishwas Havalada:** Frontend Development & Testing
+* **VISHWANATH REDDY:** Frontend Development & Testing
+* **VISHWAS HAVALADA:** Frontend Development & Testing
 
 ## 👨‍💻 Author
 
