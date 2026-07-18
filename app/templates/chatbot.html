@@ -51,10 +51,15 @@
     .bot-message { background: #e9ecef; color: #333; align-self: flex-start; border-bottom-left-radius: 4px; }
     
     /* Input Area Styling */
-    #chat-input-area { display: flex; padding: 10px; background: white; border-top: 1px solid #eee; align-items: center;}
-    #chat-input { flex-grow: 1; border: 1px solid #ccc; border-radius: 20px; padding: 10px 15px; outline: none; }
+    #chat-input-area { display: flex; padding: 10px; background: white; border-top: 1px solid #eee; align-items: center; gap: 5px;}
+    #chat-lang { border-radius: 15px; border: 1px solid #ccc; padding: 5px; font-size: 12px; outline: none; background: #f8f9fa; cursor: pointer;}
+    #chat-input { flex-grow: 1; border: 1px solid #ccc; border-radius: 20px; padding: 8px 12px; outline: none; font-size: 13px; width: 100%;}
     #chat-input:focus { border-color: #2e7d32; }
-    #send-btn, #camera-btn { background: none; border: none; font-size: 1.5em; cursor: pointer; color: #2e7d32; padding: 0 10px;}
+    
+    #send-btn, #camera-btn, #mic-btn, #stop-audio-btn { background: none; border: none; font-size: 1.3em; cursor: pointer; padding: 0 2px;}
+    #send-btn { color: #2e7d32; }
+    #mic-btn { color: #2196F3; } /* Changed mic color to blue to stand out */
+    #stop-audio-btn { color: #d32f2f; display: none; } /* Hidden by default */
     
     /* Image Preview Styling */
     #image-preview-container { display: none; padding: 10px; background: #f1f8e9; border-top: 1px solid #ddd; text-align: center; }
@@ -89,14 +94,38 @@
     </div>
 
     <div id="chat-input-area">
+        <select id="chat-lang" title="Select Language">
+            <option value="en-IN">EN</option>
+            <option value="kn-IN">ಕನ್ನಡ</option>
+            <option value="hi-IN">हिंदी</option>
+        </select>
+
+        <button id="mic-btn" onclick="startDictation()" title="Click to Speak">🎤</button>
+        <!-- NEW STOP AUDIO BUTTON -->
+        <button id="stop-audio-btn" onclick="stopAudio()" title="Stop Voice">⏹️</button>
+        
         <input type="file" id="image-upload" accept="image/*" style="display: none;" />
         <button id="camera-btn" onclick="document.getElementById('image-upload').click()" title="Upload Photo">📷</button>
-        <input type="text" id="chat-input" placeholder="Type your question..." onkeypress="handleEnter(event)">
+        
+        <input type="text" id="chat-input" placeholder="Type or speak..." onkeypress="handleEnter(event)">
         <button id="send-btn" onclick="sendTextMessage()">➤</button>
     </div>
 </div>
 
 <script>
+    // --- 0. GLOBAL AUDIO CONTROLLER ---
+    let currentAudio = null;
+
+    function stopAudio() {
+        if (currentAudio) {
+            currentAudio.pause();
+            currentAudio.currentTime = 0; // Reset audio to beginning
+            currentAudio = null;
+        }
+        // Hide the stop button when pressed
+        document.getElementById('stop-audio-btn').style.display = 'none';
+    }
+
     // --- 1. UI Toggles ---
     function toggleChat() {
         const chatWidget = document.getElementById('chat-widget');
@@ -133,7 +162,9 @@
 
     async function sendTextMessage() {
         const inputField = document.getElementById('chat-input');
+        const langSelect = document.getElementById('chat-lang').value;
         const message = inputField.value.trim();
+        
         if (!message) return;
 
         addMessageToUI(message, 'user-message');
@@ -143,14 +174,13 @@
         addMessageToUI('...', 'bot-message', loadingId);
 
         try {
-            // Sends text to your NLP + ML RAG Pipeline endpoint
             const response = await fetch('/api/chat/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                     'X-CSRFToken': getCSRFToken()
                 },
-                body: new URLSearchParams({ 'message': message })
+                body: new URLSearchParams({ 'message': message, 'lang': langSelect })
             });
 
             const data = await response.json();
@@ -158,7 +188,33 @@
 
             if (data.response) {
                 let formattedText = data.response.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+                
+                // --- NEW UI FEATURE: DYNAMIC INPUT FIELDS FOR MISSING DATA ---
+                if (data.missing_parameters && data.missing_parameters.length > 0) {
+                    let formHtml = `<div style="margin-top: 12px; background: #e8f5e9; padding: 12px; border-radius: 8px; border: 1px solid #c8e6c9;">`;
+                    
+                    data.missing_parameters.forEach(param => {
+                        let label = param.length === 1 ? param.toUpperCase() : param.charAt(0).toUpperCase() + param.slice(1);
+                        formHtml += `
+                            <div style="margin-bottom: 8px;">
+                                <label style="font-size: 12px; font-weight: bold; color: #2e7d32;">${label}:</label>
+                                <input type="number" step="any" id="missing-input-${param}" placeholder="Enter ${label}" 
+                                       style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #a5d6a7; margin-top: 4px; box-sizing: border-box;">
+                            </div>`;
+                    });
+                    
+                    formHtml += `<button onclick="submitMissingParams(event, '${data.missing_parameters.join(',')}')" 
+                                 style="background: #2e7d32; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 8px;">
+                                 Submit Data
+                                 </button>
+                                 </div>`;
+                    
+                    formattedText += formHtml;
+                }
+                // -------------------------------------------------------------
+
                 addMessageToUI(formattedText, 'bot-message');
+                speakText(data.response); // It will only speak the text, not read the HTML form code!
             } else {
                 addMessageToUI("Sorry, I encountered an error processing your query.", 'bot-message');
             }
@@ -166,6 +222,38 @@
             document.getElementById(loadingId).remove();
             addMessageToUI("Error connecting to server. Is the backend running?", 'bot-message');
         }
+    }
+
+    // --- NEW UI HELPER: HANDLE IN-CHAT FORM SUBMISSION ---
+    function submitMissingParams(event, paramsString) {
+        const params = paramsString.split(',');
+        let submissionString = "";
+        let isComplete = true;
+
+        // Collect all the values the user typed into the dynamic boxes
+        params.forEach(param => {
+            const inputVal = document.getElementById(`missing-input-${param}`).value;
+            if (!inputVal) {
+                isComplete = false;
+            } else {
+                submissionString += `${param}=${inputVal} `;
+            }
+        });
+
+        if (!isComplete) {
+            alert("Please fill in all requested fields to calculate the recommendation.");
+            return;
+        }
+
+        // Disable the form button and inputs so they can't double-click it
+        event.target.disabled = true;
+        event.target.innerText = "Submitting...";
+        params.forEach(param => document.getElementById(`missing-input-${param}`).disabled = true);
+
+        // Secretly place the formatted string into the main chat input and click send!
+        const chatInput = document.getElementById('chat-input');
+        chatInput.value = submissionString.trim();
+        sendTextMessage();
     }
 
     // --- 5. IMAGE MESSAGE LOGIC (ResNet Disease Detection) ---
@@ -203,7 +291,6 @@
         formData.append('plant_image', file);
 
         try {
-            // Sends image to the new ResNet CNN endpoint we built
             const response = await fetch('/api/detect-disease/', {
                 method: 'POST',
                 headers: { 'X-CSRFToken': getCSRFToken() },
@@ -214,14 +301,19 @@
             document.getElementById(loadingId).remove();
 
             if (data.status === 'success') {
+                const isError = data.disease === 'Unrecognized Image';
+                const borderColor = isError ? '#ff9800' : '#4CAF50';
+                
                 const resultHtml = `
-                    <div style="margin-bottom: 8px; background: white; padding: 5px; border-radius: 4px; border: 1px solid #ccc;">
-                        <strong>Diagnosis:</strong> ${data.disease} <br>
+                    <div style="margin-bottom: 8px; background: white; padding: 5px; border-radius: 4px; border: 1px solid ${borderColor};">
+                        <strong>${isError ? 'Alert:' : 'Diagnosis:'}</strong> ${data.disease} <br>
                         <small>Confidence: ${data.confidence}</small>
                     </div>
                     <div>${data.bot_response.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>')}</div>
                 `;
                 addMessageToUI(resultHtml, 'bot-message');
+                speakText(data.bot_response);
+                
             } else {
                 addMessageToUI(`❌ Error: ${data.message}`, 'bot-message');
             }
@@ -229,5 +321,90 @@
             document.getElementById(loadingId).remove();
             addMessageToUI('❌ Failed to connect to the server.', 'bot-message');
         }
+    }
+
+    // --- 6. MULTILINGUAL MICROPHONE LOGIC ---
+    function startDictation() {
+        const micBtn = document.getElementById('mic-btn');
+        const chatInput = document.getElementById('chat-input');
+        const langSelect = document.getElementById('chat-lang');
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (SpeechRecognition) {
+            const recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = langSelect.value; 
+
+            recognition.onstart = function() {
+                micBtn.innerHTML = '🔴';
+                chatInput.placeholder = "Listening...";
+            };
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                chatInput.value = transcript;
+                micBtn.innerHTML = '🎤';
+                chatInput.placeholder = "Type or speak...";
+            };
+
+            recognition.onerror = function(event) {
+                console.error("Speech recognition error:", event.error);
+                micBtn.innerHTML = '🎤';
+                chatInput.placeholder = "Error hearing you. Try again.";
+            };
+
+            recognition.onspeechend = function() {
+                recognition.stop();
+                micBtn.innerHTML = '🎤';
+                chatInput.placeholder = "Type or speak...";
+            };
+
+            recognition.start();
+        } else {
+            alert("Speech Recognition is not supported in this browser. Please use Chrome or Edge.");
+        }
+    }
+
+    // --- 7. TEXT TO SPEECH (BACKEND CLOUD AUDIO) ---
+    function speakText(text) {
+        // 1. Stop any currently playing audio before starting a new one
+        stopAudio();
+
+        // 2. Heavy Regex Cleaning to remove non-spoken characters
+        // First, remove HTML tags like <br> or <strong>
+        let cleanText = text.replace(/<[^>]*>?/gm, ''); 
+        
+        // Remove Markdown formatting (asterisks, hashtags, dashes, underscores)
+        cleanText = cleanText.replace(/[*#_\-`~]/g, ''); 
+        
+        // Remove specific punctuation that TTS reads out loud (commas, colons, brackets)
+        // Note: Periods and question marks are kept so the bot pauses between sentences naturally.
+        cleanText = cleanText.replace(/[,;:'"()[\]{}]/g, ' '); 
+        
+        // Remove double spaces left behind by deleted characters
+        cleanText = cleanText.replace(/\s+/g, ' ').trim();
+        
+        // 3. Fetch Language and Execute
+        const langSelect = document.getElementById('chat-lang').value;
+        const url = `/api/speak/?text=${encodeURIComponent(cleanText)}&lang=${langSelect}`;
+        
+        currentAudio = new Audio(url);
+        
+        // Show the Stop button now that audio is loading
+        const stopBtn = document.getElementById('stop-audio-btn');
+        stopBtn.style.display = 'inline-block';
+        
+        currentAudio.play().catch(e => {
+            console.error("Audio play failed:", e);
+            stopBtn.style.display = 'none'; // Hide if auto-play is blocked
+        });
+
+        // Automatically hide the Stop button when the voice finishes speaking
+        currentAudio.onended = function() {
+            stopBtn.style.display = 'none';
+            currentAudio = null;
+        };
     }
 </script>
