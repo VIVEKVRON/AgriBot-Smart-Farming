@@ -1,50 +1,149 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card shadow-sm border-0 mb-5">
-            <div class="card-body p-5">
-                <h2 class="text-center text-success mb-4">🍂 Plant Disease Detection</h2>
-                <p class="text-center text-muted mb-4">Upload a clear photo of a plant leaf, and our deep learning model will analyze it for signs of disease.</p>
+<div class="max-w-5xl mx-auto w-full mt-10 relative z-10 flex flex-col gap-10">
+    
+    <!-- Page Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div>
+            <h2 class="text-3xl font-semibold text-white tracking-tight mb-2">Neural Disease Detection</h2>
+            <p class="text-sm text-text-secondary max-w-lg leading-relaxed">
+                Upload a clear photo of a plant leaf, and our deep learning model will analyze it for potential pathogens and health anomalies.
+            </p>
+        </div>
+        <div class="flex items-center gap-3">
+            <span class="flex items-center gap-2 text-xs font-medium text-text-secondary bg-white/5 border border-white/10 rounded-full px-3 py-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+                Model: AGRI-V4
+            </span>
+            <span class="flex items-center gap-2 text-xs font-medium text-text-secondary bg-white/5 border border-white/10 rounded-full px-3 py-1">
+                <span translate="no" class="material-symbols-outlined notranslate text-[14px] text-primary">biotech</span>
+                Online
+            </span>
+        </div>
+    </div>
 
-                <form method="POST" enctype="multipart/form-data">
-                    {% csrf_token %} 
-                    
-                    <div class="mb-4">
-                        <label for="image" class="form-label fw-bold">Select Leaf Image (.jpg, .png)</label>
-                        <input class="form-control form-control-lg" type="file" id="image" name="image" accept="image/*" required>
-                    </div>
-                    
-                    <div class="d-grid mt-4">
-                        <button type="submit" class="btn btn-success btn-lg">Analyze Image</button>
-                    </div>
-                </form>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Upload Widget -->
+        <section class="lg:col-span-7 glass-panel p-8 relative overflow-hidden group">
+            <div class="flex items-center justify-between mb-8 pb-4 border-b border-white/10">
+                <span class="text-xs font-medium uppercase tracking-widest text-primary flex items-center gap-2">
+                    <span translate="no" class="material-symbols-outlined notranslate text-[16px]">upload_file</span>
+                    Input Matrix
+                </span>
+                <span class="text-[10px] tracking-wider text-text-secondary/50 font-mono">SYS_READY</span>
+            </div>
 
-                {% if result %}
-                <div class="mt-5 text-center">
-                    <h4 class="mb-3">Diagnosis Result:</h4>
-                    <div class="alert alert-warning shadow-sm border-0">
-                        <h3 class="mb-0 fw-bold">{{ result }}</h3>
+            <form method="POST" enctype="multipart/form-data" class="flex flex-col">
+                {% csrf_token %}
+                
+                <label for="image" class="border border-dashed border-white/20 rounded-2xl h-72 flex flex-col items-center justify-center relative cursor-pointer hover:bg-white/5 hover:border-primary/50 transition-all group/drop">
+                    <div class="text-center space-y-4">
+                        <div class="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-2 group-hover/drop:scale-110 group-hover/drop:bg-primary/20 group-hover/drop:border-primary/50 transition-all">
+                            <span translate="no" class="material-symbols-outlined notranslate text-3xl text-white group-hover/drop:text-primary transition-colors">image</span>
+                        </div>
+                        <p class="text-lg text-white font-medium">Select Leaf Image</p>
+                        <p class="text-sm text-text-secondary max-w-xs mx-auto">Supports JPG, PNG formats up to 10MB.</p>
+                        <span class="btn-pill btn-outline px-4 py-1.5 text-xs mt-2 pointer-events-none">Browse Library</span>
+                    </div>
+                    <input type="file" id="image" name="image" accept="image/*" class="hidden" required onchange="previewFileName(this)">
+                </label>
+                
+                <p id="file-name-display" class="mt-4 text-sm font-medium text-primary text-center hidden"></p>
+
+                <div class="mt-8 flex justify-end">
+                    <button type="submit" class="btn-pill btn-primary px-8 py-3 w-full md:w-auto" id="analyze-btn">
+                        Analyze Image
+                        <div class="btn-icon-circle w-6 h-6">
+                            <span translate="no" class="material-symbols-outlined notranslate text-[16px]">analytics</span>
+                        </div>
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Diagnosis Result -->
+        <section class="lg:col-span-5 flex flex-col gap-6">
+            {% if result %}
+            <div class="glass-panel p-8 h-full relative overflow-hidden" style="border-color: rgba(34, 197, 94, 0.4); box-shadow: 0 0 40px rgba(34,197,94,0.1);">
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
+                    <span class="text-xs font-medium uppercase tracking-widest text-primary flex items-center gap-2">
+                        <span translate="no" class="material-symbols-outlined notranslate text-[16px]">visibility</span>
+                        Diagnosis Result
+                    </span>
+                    <span class="text-[10px] tracking-wider text-primary font-mono">CONFIRMED</span>
+                </div>
+                
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-3xl font-semibold text-primary mb-2 leading-tight">{{ result }}</h3>
+                        <p class="text-sm text-text-secondary">AI Confidence: <span class="text-white font-medium">High</span></p>
                     </div>
                     
                     {% if uploaded_image %}
-                    <div class="mt-4">
-                        <p class="text-muted small mb-2">Image Analyzed:</p>
-                        <img src="{{ uploaded_image }}" alt="Uploaded Leaf" class="img-fluid rounded shadow-sm" style="max-height: 250px;">
+                    <div class="relative w-full aspect-video rounded-xl border border-white/10 overflow-hidden mt-6">
+                        <img src="{{ uploaded_image }}" alt="Uploaded Leaf" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                        <div class="absolute bottom-3 left-3 flex gap-2">
+                            <span class="bg-black/50 backdrop-blur text-white text-[10px] font-medium px-2 py-1 rounded border border-white/10 uppercase tracking-wider">Analyzed Source</span>
+                        </div>
                     </div>
                     {% endif %}
                 </div>
-                {% endif %}
-
-                {% if error %}
-                <div class="alert alert-danger mt-4 text-center shadow-sm">
-                    <p class="mb-0">{{ error }}</p>
-                </div>
-                {% endif %}
-                
             </div>
-        </div>
+            {% else %}
+            <div class="glass-panel p-8 h-full flex flex-col items-center justify-center text-center opacity-70">
+                <div class="w-20 h-20 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-6">
+                    <span translate="no" class="material-symbols-outlined notranslate text-4xl text-text-secondary">troubleshoot</span>
+                </div>
+                <h3 class="text-lg font-medium text-white mb-2">Awaiting Input</h3>
+                <p class="text-sm text-text-secondary max-w-[200px]">Upload an image to view the deep learning diagnosis.</p>
+            </div>
+            {% endif %}
+            
+            {% if error %}
+            <div class="glass-panel p-6 mt-6 border-red-500/30 bg-red-500/5">
+                <div class="flex items-start gap-3">
+                    <span translate="no" class="material-symbols-outlined notranslate text-red-400 mt-0.5">error</span>
+                    <div>
+                        <h3 class="text-sm font-semibold text-red-400 mb-1">Processing Error</h3>
+                        <p class="text-sm text-red-400/80">{{ error }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </section>
+        
     </div>
 </div>
+
+<script>
+    function previewFileName(input) {
+        const display = document.getElementById('file-name-display');
+        if (input.files && input.files[0]) {
+            display.innerHTML = `<span translate="no" class="material-symbols-outlined notranslate text-[16px] inline-block align-text-bottom mr-1">check_circle</span> Selected: ${input.files[0].name}`;
+            display.classList.remove('hidden');
+        } else {
+            display.classList.add('hidden');
+        }
+    }
+
+    document.getElementById('analyze-btn').addEventListener('click', function(e) {
+        const fileInput = document.getElementById('image');
+        if (fileInput.files.length > 0) {
+            const btn = this;
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = `
+                <span translate="no" class="material-symbols-outlined notranslate animate-spin text-[18px]">refresh</span>
+                Analyzing...
+                <div class="btn-icon-circle w-6 h-6">
+                    <span translate="no" class="material-symbols-outlined notranslate text-[16px]">analytics</span>
+                </div>
+            `;
+            btn.style.opacity = '0.8';
+            btn.style.pointerEvents = 'none';
+        }
+    });
+</script>
 {% endblock %}

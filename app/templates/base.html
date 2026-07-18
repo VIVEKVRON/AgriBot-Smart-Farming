@@ -1,44 +1,291 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="dark" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgriBot - Smart Farming Assistant</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>AgriBot | AI Assistant</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@300,0..1&display=swap" rel="stylesheet"/>
     <style>
-        body { background-color: #f8f9fa; }
-        .navbar { background-color: #2e7d32; }
-        .navbar-brand, .nav-link { color: white !important; }
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            /* Subtle dark grain texture can go here if needed, keeping it pure black for now */
+        }
+
+        /* Glassmorphic panels with soft borders and translucency */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1.5rem; /* rounded-3xl equivalent */
+            box-shadow: 0 4px 40px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .glass-panel:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* The large glowing sphere effect */
+        .glow-sphere {
+            position: absolute;
+            width: 80vw;
+            height: 80vw;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: -50vw;
+            background: radial-gradient(circle, rgba(34, 197, 94, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+            border-radius: 50%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Pill shaped buttons */
+        .btn-pill {
+            border-radius: 9999px;
+            padding: 0.5rem 1.25rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: #22c55e;
+            color: #000000;
+        }
+        
+        .btn-primary:hover {
+            background-color: #16a34a;
+            transform: scale(1.02);
+        }
+
+        .btn-secondary {
+            background-color: #ffffff;
+            color: #000000;
+        }
+
+        .btn-secondary:hover {
+            background-color: #f3f4f6;
+            transform: scale(1.02);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+        }
+
+        .btn-outline:hover {
+            border-color: rgba(255, 255, 255, 0.4);
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Small circular icon container inside buttons */
+        .btn-icon-circle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0,0,0,0.1);
+            border-radius: 50%;
+            padding: 2px;
+        }
+        
+        .btn-primary .btn-icon-circle {
+            background-color: #ffffff;
+            color: #22c55e;
+        }
+
+        .btn-secondary .btn-icon-circle {
+            background-color: #000000;
+            color: #ffffff;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #000000;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Noise overlay for texture */
+        .noise-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+        /* Global form input styling for dark mode */
+        input[type="text"]:not(#chat-input),
+        input[type="number"],
+        input[type="email"],
+        input[type="password"],
+        select,
+        textarea,
+        .form-control,
+        .form-select {
+            background-color: #1a1a1a !important;
+            color: #ffffff !important;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus,
+        .form-control:focus,
+        .form-select:focus {
+            background-color: #1a1a1a !important;
+            color: #ffffff !important;
+            border-color: #4CAF50 !important;
+            outline: none !important;
+            box-shadow: 0 0 0 1px #4CAF50 !important;
+        }
+
+        /* Override browser autofill styling */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
+        input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px #1a1a1a inset !important;
+            -webkit-text-fill-color: #ffffff !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
+        /* Hide Google Translate Default UI */
+        #google_translate_element { display: none !important; }
+        .goog-te-banner-frame.skiptranslate { display: none !important; }
+        body { top: 0px !important; }
     </style>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "background": "#000000",
+                "surface": "rgba(255, 255, 255, 0.03)",
+                "surface-variant": "rgba(255, 255, 255, 0.08)",
+                "primary": "#22c55e",
+                "on-primary": "#000000",
+                "text-primary": "#ffffff",
+                "text-secondary": "rgba(255, 255, 255, 0.6)",
+                "border-color": "rgba(255, 255, 255, 0.1)"
+            },
+            "fontFamily": {
+                "sans": ["Inter", "sans-serif"]
+            }
+          },
+        },
+      }
+    </script>
 </head>
-<body>
+<body class="min-h-screen custom-scrollbar relative">
+<div class="noise-bg"></div>
 
-    <nav class="navbar navbar-expand-lg">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="{% url 'home' %}">🌱 AgriBot</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="{% url 'predict_crop' %}">Crop Recommendation</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'predict_fertilizer' %}">Fertilizer Recommendation</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'predict_disease' %}">Disease Detection</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'predict_yield' %}">Yield Prediction</a></li>
-                </ul>
-            </div>
+<!-- Top Navigation -->
+<header class="fixed top-0 left-0 w-full z-40 flex justify-between items-center px-6 md:px-12 h-20 bg-black/50 backdrop-blur-md border-b border-white/5">
+    <!-- Logo -->
+    <div class="flex items-center gap-3">
+        <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+            <span translate="no" class="material-symbols-outlined notranslate text-black text-[20px]">psychology</span>
         </div>
-    </nav>
-
-    <div class="container mt-5">
-        {% block content %}
-        {% endblock %}
+        <a href="{% url 'home' %}" class="font-semibold text-lg tracking-tight text-white hover:text-primary transition-colors">AgriBot</a>
     </div>
 
-    <div style="display:none;">{% csrf_token %}</div>
+    <!-- Centered Nav Links -->
+    <nav class="hidden md:flex items-center gap-8">
+        <a class="text-sm font-medium text-text-secondary hover:text-white transition-colors" href="{% url 'predict_crop' %}">Crops</a>
+        <a class="text-sm font-medium text-text-secondary hover:text-white transition-colors" href="{% url 'predict_fertilizer' %}">Fertilizer</a>
+        <a class="text-sm font-medium text-text-secondary hover:text-white transition-colors" href="{% url 'predict_disease' %}">Disease</a>
+        <a class="text-sm font-medium text-text-secondary hover:text-white transition-colors" href="{% url 'predict_yield' %}">Yield</a>
+    </nav>
 
-    {% include 'chatbot.html' %}
+    <!-- Right Actions -->
+    <div class="flex items-center gap-4">
+        <!-- Native Language Selector linked to hidden Google Translate -->
+        <select id="native-lang-selector" onchange="translatePage(this.value)" class="hidden sm:block btn-pill btn-outline text-xs px-4 py-1.5 focus:border-primary appearance-none outline-none cursor-pointer text-white">
+            <option class="bg-black text-white" value="">English (EN)</option>
+            <option class="bg-black text-white" value="hi">हिंदी (HI)</option>
+            <option class="bg-black text-white" value="kn">ಕನ್ನಡ (KN)</option>
+        </select>
+        <div id="google_translate_element"></div>
+        <button class="btn-pill btn-secondary text-sm">
+            Commander
+            <div class="btn-icon-circle w-5 h-5">
+                <span translate="no" class="material-symbols-outlined notranslate text-[14px]">arrow_outward</span>
+            </div>
+        </button>
+    </div>
+</header>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Global Glow Sphere (acts as ambient light from bottom) -->
+<div class="glow-sphere fixed"></div>
+
+<main class="pt-28 pb-16 px-6 md:px-12 max-w-[1200px] mx-auto min-h-screen relative z-10 flex flex-col items-center">
+    {% block content %}
+    {% endblock %}
+</main>
+
+<div style="display:none;">{% csrf_token %}</div>
+
+{% include 'chatbot.html' %}
+
+<!-- Google Translate Script -->
+<script type="text/javascript">
+function translatePage(lang) {
+    var domain = window.location.hostname;
+    if(lang === "") {
+        document.cookie = "googtrans=/en/en; path=/;";
+        document.cookie = "googtrans=/en/en; path=/; domain=" + domain;
+    } else {
+        document.cookie = "googtrans=/en/" + lang + "; path=/;";
+        document.cookie = "googtrans=/en/" + lang + "; path=/; domain=" + domain;
+    }
+    window.location.reload();
+}
+
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({
+    pageLanguage: 'en', 
+    includedLanguages: 'en,hi,kn', 
+    autoDisplay: false
+  }, 'google_translate_element');
+}
+
+// Set dropdown to current language cookie on load
+window.addEventListener('load', function() {
+    var cookies = document.cookie.split(';');
+    for(var i = 0; i < cookies.length; i++) {
+        var c = cookies[i].trim();
+        if(c.startsWith('googtrans=')) {
+            var val = c.split('=')[1];
+            var lang = val.split('/')[2];
+            if(lang === 'en') lang = '';
+            var sel = document.getElementById('native-lang-selector');
+            if(sel) sel.value = lang;
+            break;
+        }
+    }
+});
+</script>
+<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
 </body>
 </html>

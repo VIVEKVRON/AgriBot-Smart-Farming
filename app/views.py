@@ -23,6 +23,7 @@ from tensorflow.keras.applications.resnet50 import preprocess_input
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 import google.generativeai as genai
+from groq import Groq
 from dotenv import load_dotenv
 
 # Tell Python to find and load the .env file
@@ -40,6 +41,39 @@ api_key = os.getenv("GEMINI_API_KEY")
 # Pass it to Gemini
 genai.configure(api_key=api_key)
 llm = genai.GenerativeModel('gemini-2.5-flash')
+
+# Initialize Groq client
+try:
+    groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+except Exception as e:
+    print(f"Error initializing Groq: {e}")
+    groq_client = None
+
+def generate_ai_response(prompt, image=None):
+    """Dual-LLM fallback routing function."""
+    try:
+        if image:
+            return llm.generate_content([prompt, image]).text
+        else:
+            return llm.generate_content(prompt).text
+    except Exception as gemini_err:
+        print(f"DEBUG: Gemini API Failed: {str(gemini_err)}")
+        if image:
+            return "I am experiencing unusually high traffic and cannot analyze photos right now. Please try again in a few minutes."
+        if groq_client:
+            print("DEBUG: Falling back to Groq (Llama 3)...")
+            try:
+                chat_completion = groq_client.chat.completions.create(
+                    messages=[{"role": "user", "content": prompt}],
+                    model="llama-3.1-8b-instant",
+                )
+                return chat_completion.choices[0].message.content
+            except Exception as groq_err:
+                print(f"DEBUG: Groq API Failed: {str(groq_err)}")
+                raise Exception(f"Both Gemini and Groq APIs failed. Gemini: {gemini_err}, Groq: {groq_err}")
+        else:
+            raise gemini_err
+
 
 # Load Crop Models
 xgb_model = joblib.load(os.path.join(MODEL_DIR, 'xgboost_crop_model.pkl'))
@@ -119,6 +153,13 @@ def predict_disease(request):
             filename = fs.save(uploaded_file.name, uploaded_file)
             img_path = fs.path(filename)
             uploaded_file_url = fs.url(filename)
+            
+            # Multimodal Security Gatekeeper
+            gatekeeper_img = Image.open(img_path)
+            gatekeeper_prompt = 'Is this an image of a plant, leaf, crop, or agriculture? Answer strictly with a single word: YES or NO.'
+            gatekeeper_response = generate_ai_response(gatekeeper_prompt, image=gatekeeper_img)
+            if 'NO' in gatekeeper_response.upper():
+                return render(request, 'disease_predict.html', {'error': 'Please upload a valid image of a plant or leaf.'})
             
             # Preprocess image for ResNet50
             img = keras_image.load_img(img_path, target_size=(224, 224))
@@ -381,7 +422,7 @@ def chat_api(request):
                 
                 # 2. Layered Protection for the LLM API
                 try:
-                    gemini_response = llm.generate_content(analytical_prompt).text
+                    gemini_response = generate_ai_response(analytical_prompt)
                 except Exception as api_error:
                     print(f"DEBUG: Gemini API Failed (Likely Rate Limit) - {str(api_error)}")
                     # FALLBACK: Bypass Gemini and return the raw ML calculation
@@ -429,7 +470,7 @@ def chat_api(request):
                         2. Do not ask them for parameters again.
                         3. CRITICAL: You MUST write your entire response in {target_lang.upper()} (or match the language of the user's input).
                     """
-                    gemini_response = llm.generate_content(fert_prompt).text
+                    gemini_response = generate_ai_response(fert_prompt)
                     
                     request.session.pop('saved_params', None)
                     request.session.pop('saved_crop', None)
@@ -463,7 +504,7 @@ def chat_api(request):
             FARMER'S QUESTION: ### {user_text} ###
             """
 
-            final_response = llm.generate_content(prompt).text
+            final_response = generate_ai_response(prompt)
             return JsonResponse({'response': final_response})
             
         except Exception as e:
@@ -481,6 +522,17 @@ def detect_disease(request):
             uploaded_file = request.FILES['plant_image']
             
             img = Image.open(uploaded_file).convert('RGB')
+            
+            # Multimodal Security Gatekeeper
+            gatekeeper_prompt = 'Is this an image of a plant, leaf, crop, or agriculture? Answer strictly with a single word: YES or NO.'
+            gatekeeper_response = generate_ai_response(gatekeeper_prompt, image=img)
+            if 'NO' in gatekeeper_response.upper():
+                return JsonResponse({
+                    "status": "success",
+                    "disease": "Invalid Image",
+                    "bot_response": "This doesn't look like a plant to me! Please upload a clear picture of a crop or leaf."
+                })
+
             img = img.resize((224, 224)) 
             img_array = np.array(img)
             img_array = np.expand_dims(img_array, axis=0)
@@ -518,7 +570,7 @@ def detect_disease(request):
             
             INSTRUCTIONS: Write a short, empathetic response explaining what this disease is and provide 2-3 actionable steps the farmer can take to cure it.
             """
-            llm_response = llm.generate_content(prompt).text
+            llm_response = generate_ai_response(prompt)
             
             return JsonResponse({
                 "status": "success",

@@ -1,78 +1,89 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card shadow-sm border-0 rounded-lg mt-5">
-            <div class="card-header" style="background-color: #2e7d32; color: white;">
-                <h3 class="text-center font-weight-light my-2">Fertilizer Recommendation</h3>
-            </div>
-            <div class="card-body">
-                <form method="POST" action="{% url 'predict_fertilizer' %}">
-                    {% csrf_token %}
+<div class="max-w-3xl mx-auto w-full mt-10 relative z-10 flex flex-col gap-10">
     
-                    <div class="row">
-                        <div class="col-md-4 mb-3">
-                            <label for="nitrogen" class="form-label">Nitrogen (N)</label>
-                            <input type="number" step="any" class="form-control" id="nitrogen" name="nitrogen" required placeholder="e.g., 50">
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="phosphorus" class="form-label">Phosphorus (P)</label>
-                            <input type="number" step="any" class="form-control" id="phosphorus" name="phosphorus" required placeholder="e.g., 30">
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label for="potassium" class="form-label">Potassium (K)</label>
-                            <input type="number" step="any" class="form-control" id="potassium" name="potassium" required placeholder="e.g., 40">
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-3 mb-3">
-                            <label for="temperature" class="form-label">Temperature (°C)</label>
-                            <input type="number" step="any" class="form-control" id="temperature" name="temperature" required placeholder="e.g., 26.5">
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <label for="humidity" class="form-label">Humidity (%)</label>
-                            <input type="number" step="any" class="form-control" id="humidity" name="humidity" required placeholder="e.g., 75">
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <label for="ph" class="form-label">Soil pH</label>
-                            <input type="number" step="any" class="form-control" id="ph" name="ph" required placeholder="e.g., 6.8">
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <label for="rainfall" class="form-label">Rainfall (mm)</label>
-                            <input type="number" step="any" class="form-control" id="rainfall" name="rainfall" required placeholder="e.g., 110">
-                        </div>
-                    </div>
-
-                    <div class="d-grid gap-2 mt-4">
-                        <button class="btn btn-success" style="background-color: #2e7d32;" type="submit">Predict Fertilizer</button>
-                    </div>
-                </form>
-
-                {% if result %}
-                <div class="alert alert-info mt-4 text-center shadow-sm">
-                    <h5 class="text-muted mb-2">Recommended Fertilizer:</h5>
-                    <h2 class="display-5 text-success mb-3"><strong>{{ result }}</strong></h2>
-                    
-                    {% if explanation %}
-                    <hr class="my-3">
-                    <div class="text-start px-3">
-                        <p class="mb-0" style="font-size: 1.1em; color: #2e7d32;">
-                            💡 <strong>What this means:</strong> <span class="text-dark">{{ explanation|safe }}</span>
-                        </p>
-                    </div>
-                    {% endif %}
-                </div>
-                {% endif %}
-                
-                {% if error %}
-                <div class="alert alert-danger mt-4">
-                    {{ error }}
-                </div>
-                {% endif %}
-            </div>
+    <!-- Page Header -->
+    <div class="flex flex-col items-center text-center gap-4">
+        <div class="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-2">
+            <span translate="no" class="material-symbols-outlined notranslate text-primary text-3xl">science</span>
         </div>
+        <h2 class="text-3xl font-semibold text-white tracking-tight">Fertilizer Recommendation</h2>
+        <p class="text-sm text-text-secondary max-w-xl leading-relaxed">
+            Discover the exact fertilizer blend needed for optimal soil health based on your nutrient deficit and local conditions.
+        </p>
     </div>
+
+    <!-- Main Form -->
+    <section class="glass-panel p-8 md:p-10 relative overflow-hidden">
+        <form method="POST" action="{% url 'predict_fertilizer' %}" class="flex flex-col gap-6">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-medium text-text-secondary uppercase tracking-wider">Nitrogen (N)</label>
+                    <input type="number" step="any" class="form-control rounded-xl px-4 py-3 text-sm transition-all focus:ring-1 focus:ring-primary/50" id="nitrogen" name="nitrogen" required placeholder="e.g., 50">
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-medium text-text-secondary uppercase tracking-wider">Phosphorus (P)</label>
+                    <input type="number" step="any" class="form-control rounded-xl px-4 py-3 text-sm transition-all focus:ring-1 focus:ring-primary/50" id="phosphorus" name="phosphorus" required placeholder="e.g., 30">
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-medium text-text-secondary uppercase tracking-wider">Potassium (K)</label>
+                    <input type="number" step="any" class="form-control rounded-xl px-4 py-3 text-sm transition-all focus:ring-1 focus:ring-primary/50" id="potassium" name="potassium" required placeholder="e.g., 40">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-medium text-text-secondary uppercase tracking-wider">Temperature (°C)</label>
+                    <input type="number" step="any" class="form-control rounded-xl px-4 py-3 text-sm transition-all focus:ring-1 focus:ring-primary/50" id="temperature" name="temperature" required placeholder="e.g., 26.5">
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-medium text-text-secondary uppercase tracking-wider">Humidity (%)</label>
+                    <input type="number" step="any" class="form-control rounded-xl px-4 py-3 text-sm transition-all focus:ring-1 focus:ring-primary/50" id="humidity" name="humidity" required placeholder="e.g., 75">
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-medium text-text-secondary uppercase tracking-wider">Soil pH</label>
+                    <input type="number" step="any" class="form-control rounded-xl px-4 py-3 text-sm transition-all focus:ring-1 focus:ring-primary/50" id="ph" name="ph" required placeholder="e.g., 6.8">
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-medium text-text-secondary uppercase tracking-wider">Rainfall (mm)</label>
+                    <input type="number" step="any" class="form-control rounded-xl px-4 py-3 text-sm transition-all focus:ring-1 focus:ring-primary/50" id="rainfall" name="rainfall" required placeholder="e.g., 110">
+                </div>
+            </div>
+
+            <div class="mt-4 flex justify-center">
+                <button type="submit" class="btn-pill btn-primary px-8 py-3 w-full md:w-auto">
+                    Predict Fertilizer
+                    <div class="btn-icon-circle w-6 h-6">
+                        <span translate="no" class="material-symbols-outlined notranslate text-[16px]">psychology</span>
+                    </div>
+                </button>
+            </div>
+        </form>
+
+        {% if result %}
+        <div class="mt-8 p-6 rounded-2xl bg-primary/10 border border-primary/30 flex flex-col items-center text-center">
+            <span class="text-xs font-medium uppercase tracking-widest text-primary mb-2">Recommended Fertilizer</span>
+            <h4 class="text-3xl font-semibold text-white mb-4">{{ result }}</h4>
+            
+            {% if explanation %}
+            <div class="w-full border-t border-primary/20 pt-4 mt-2">
+                <p class="text-sm text-text-secondary leading-relaxed">
+                    <strong class="text-primary">What this means:</strong> <span class="text-white">{{ explanation|safe }}</span>
+                </p>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        {% if error %}
+        <div class="mt-8 p-6 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-center">
+            <span translate="no" class="material-symbols-outlined notranslate text-red-400 mr-2">error</span>
+            <p class="text-red-400 text-sm">{{ error }}</p>
+        </div>
+        {% endif %}
+    </section>
 </div>
 {% endblock %}

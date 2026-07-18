@@ -1,115 +1,123 @@
 <style>
-    /* Floating Chatbot CSS */
+    /* Chat specific styles */
+    .chat-scroll-hide::-webkit-scrollbar {
+        width: 4px;
+    }
+    .chat-scroll-hide::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .chat-scroll-hide::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+    }
+    
     #chat-widget {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        width: 380px;
-        background: white;
-        border-radius: 15px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         display: none;
         flex-direction: column;
-        overflow: hidden;
-        z-index: 1000;
-        border: 1px solid #e0e0e0;
+        transform-origin: bottom right;
+        animation: chat-pop 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
-    #chat-header {
-        background: #2e7d32;
-        color: white;
-        padding: 15px;
-        font-weight: bold;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+
+    @keyframes chat-pop {
+        0% { opacity: 0; transform: scale(0.95) translateY(10px); }
+        100% { opacity: 1; transform: scale(1) translateY(0); }
     }
-    #chat-header button {
-        background: none;
-        border: none;
-        color: white;
-        font-size: 24px;
-        cursor: pointer;
-        line-height: 1;
-    }
-    #chat-messages {
-        height: 350px;
-        overflow-y: auto;
-        padding: 15px;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        background: #f8f9fa;
-    }
-    .message {
-        max-width: 85%;
-        padding: 10px 15px;
-        border-radius: 18px;
-        font-size: 14px;
-        line-height: 1.4;
-    }
-    .user-message { background: #2e7d32; color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
-    .bot-message { background: #e9ecef; color: #333; align-self: flex-start; border-bottom-left-radius: 4px; }
     
-    /* Input Area Styling */
-    #chat-input-area { display: flex; padding: 10px; background: white; border-top: 1px solid #eee; align-items: center; gap: 5px;}
-    #chat-lang { border-radius: 15px; border: 1px solid #ccc; padding: 5px; font-size: 12px; outline: none; background: #f8f9fa; cursor: pointer;}
-    #chat-input { flex-grow: 1; border: 1px solid #ccc; border-radius: 20px; padding: 8px 12px; outline: none; font-size: 13px; width: 100%;}
-    #chat-input:focus { border-color: #2e7d32; }
-    
-    #send-btn, #camera-btn, #mic-btn, #stop-audio-btn { background: none; border: none; font-size: 1.3em; cursor: pointer; padding: 0 2px;}
-    #send-btn { color: #2e7d32; }
-    #mic-btn { color: #2196F3; } /* Changed mic color to blue to stand out */
-    #stop-audio-btn { color: #d32f2f; display: none; } /* Hidden by default */
-    
-    /* Image Preview Styling */
-    #image-preview-container { display: none; padding: 10px; background: #f1f8e9; border-top: 1px solid #ddd; text-align: center; }
-    #image-preview { max-height: 120px; border-radius: 8px; margin: 0 auto 10px auto; display: block; }
-    .preview-btn { padding: 5px 15px; border: none; border-radius: 4px; cursor: pointer; color: white; font-weight: bold; }
-    
-    /* Toggle Button */
     #chat-toggle {
-        position: fixed; bottom: 25px; right: 25px; background: #2e7d32; color: white; border: none;
-        border-radius: 50%; width: 65px; height: 65px; font-size: 30px; cursor: pointer;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 999; transition: 0.3s;
+        box-shadow: 0 8px 30px rgba(34, 197, 94, 0.25);
     }
-    #chat-toggle:hover { transform: scale(1.05); }
 </style>
 
-<button id="chat-toggle" onclick="toggleChat()">💬</button>
-
-<div id="chat-widget">
-    <div id="chat-header">
-        <span>🌱 AgriBot Assistant</span>
-        <button onclick="toggleChat()">&times;</button>
+<!-- Floating Chat Toggle Button -->
+<div class="fixed bottom-8 right-8 flex flex-col items-end gap-4 z-50">
+    <div id="chat-notification" class="hidden glass-panel px-4 py-2 border border-primary/30 shadow-[0_0_15px_rgba(34,197,94,0.15)] animate-bounce text-primary text-xs font-medium tracking-wide">
+        AI STEWARDSHIP ACTIVE
     </div>
     
-    <div id="chat-messages">
-        <div class="message bot-message">Namaste! I am AgriBot. Ask me about crops, fertilizers, or <strong>upload a photo</strong> of a diseased plant!</div>
+    <button id="chat-toggle" onclick="toggleChat()" class="w-16 h-16 rounded-full bg-primary text-black flex items-center justify-center shadow-xl hover:scale-105 active:scale-95 transition-all">
+        <span translate="no" class="material-symbols-outlined notranslate text-3xl">psychology</span>
+    </button>
+</div>
+
+<!-- Main Chat Widget Container -->
+<div id="chat-widget" class="fixed bottom-28 right-8 z-50 w-full max-w-[380px] h-[600px] flex-col glass-panel shadow-2xl overflow-hidden">
+    
+    <!-- TopAppBar -->
+    <header class="flex items-center justify-between px-6 py-4 w-full border-b border-white/5 bg-black/40 backdrop-blur-md">
+        <div class="flex items-center gap-3">
+            <div class="relative">
+                <div class="w-10 h-10 rounded-full border border-white/10 overflow-hidden bg-white/5 flex items-center justify-center">
+                    <span translate="no" class="material-symbols-outlined notranslate text-primary text-2xl">psychology</span>
+                </div>
+                <div class="absolute bottom-0 right-0 w-3 h-3 bg-primary rounded-full border-2 border-black animate-pulse"></div>
+            </div>
+            <div class="flex flex-col">
+                <h1 class="text-sm font-semibold text-white leading-none mb-1">AgriBot</h1>
+                <span class="text-[10px] text-primary uppercase tracking-widest font-medium">Assistant Active</span>
+            </div>
+        </div>
+        <button onclick="toggleChat()" class="text-text-secondary hover:text-white transition-colors cursor-pointer active:scale-95">
+            <span translate="no" class="material-symbols-outlined notranslate text-[20px]">close</span>
+        </button>
+    </header>
+
+    <!-- Message Area -->
+    <main id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-6 chat-scroll-hide">
+        <!-- Initial Bot Message -->
+        <div class="flex flex-col items-start max-w-[90%]">
+            <div class="flex items-center gap-2 mb-1.5 pl-1">
+                <span translate="no" class="material-symbols-outlined notranslate text-[12px] text-primary">psychology</span>
+                <span class="text-[10px] text-text-secondary uppercase font-medium tracking-wide">AgriBot</span>
+            </div>
+            <div class="bg-white/5 border border-white/10 rounded-2xl rounded-tl-sm p-4 text-sm text-white leading-relaxed shadow-sm">
+                <p>
+                    Namaste! I am AgriBot. Ask me about crops, fertilizers, or <strong>upload a photo</strong> of a diseased plant!
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Image Preview Area -->
+    <div id="image-preview-container" class="hidden bg-black/40 backdrop-blur border-t border-white/5 p-4 text-center">
+        <img id="image-preview" src="" alt="Selected Plant" class="max-h-[120px] mx-auto rounded-lg border border-primary/30 mb-3 object-cover shadow-[0_0_15px_rgba(34,197,94,0.1)]">
+        <div class="flex gap-2 justify-center">
+            <button onclick="sendImage()" class="btn-pill btn-primary text-[11px] px-4 py-1.5">Analyze Image</button>
+            <button onclick="cancelImage()" class="btn-pill btn-outline text-[11px] px-4 py-1.5 border-white/20 text-white">Cancel</button>
+        </div>
     </div>
 
-    <div id="image-preview-container">
-        <img id="image-preview" src="" alt="Selected Plant" />
-        <button onclick="sendImage()" class="preview-btn" style="background: #4CAF50;">🔍 Analyze Disease</button>
-        <button onclick="cancelImage()" class="preview-btn" style="background: #f44336;">Cancel</button>
-    </div>
-
-    <div id="chat-input-area">
-        <select id="chat-lang" title="Select Language">
-            <option value="en-IN">EN</option>
-            <option value="kn-IN">ಕನ್ನಡ</option>
-            <option value="hi-IN">हिंदी</option>
-        </select>
-
-        <button id="mic-btn" onclick="startDictation()" title="Click to Speak">🎤</button>
-        <!-- NEW STOP AUDIO BUTTON -->
-        <button id="stop-audio-btn" onclick="stopAudio()" title="Stop Voice">⏹️</button>
+    <!-- Input Area -->
+    <footer class="bg-black/60 backdrop-blur-md border-t border-white/5 p-4 rounded-b-3xl">
+        <div class="relative flex items-center bg-white/5 border border-white/10 rounded-full p-1.5 focus-within:border-primary/50 focus-within:bg-white/10 transition-all duration-300">
+            
+            <input id="chat-input" class="flex-1 !bg-transparent !border-none focus:ring-0 text-white text-sm placeholder:text-text-secondary/50 px-4 outline-none" placeholder="Message AgriBot..." type="text" onkeypress="handleEnter(event)"/>
+            
+            <button id="send-btn" onclick="sendTextMessage()" class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-black hover:scale-105 active:scale-95 transition-all shrink-0">
+                <span translate="no" class="material-symbols-outlined notranslate text-[16px] ml-0.5">send</span>
+            </button>
+        </div>
         
-        <input type="file" id="image-upload" accept="image/*" style="display: none;" />
-        <button id="camera-btn" onclick="document.getElementById('image-upload').click()" title="Upload Photo">📷</button>
-        
-        <input type="text" id="chat-input" placeholder="Type or speak..." onkeypress="handleEnter(event)">
-        <button id="send-btn" onclick="sendTextMessage()">➤</button>
-    </div>
+        <div class="flex justify-between items-center mt-3 px-2">
+            <select id="chat-lang" class="bg-transparent text-text-secondary font-medium text-[11px] border-none outline-none cursor-pointer hover:text-white transition-colors">
+                <option value="en-IN" class="bg-black text-white">English (EN)</option>
+                <option value="kn-IN" class="bg-black text-white">ಕನ್ನಡ (KN)</option>
+                <option value="hi-IN" class="bg-black text-white">हिंदी (HI)</option>
+            </select>
+            
+            <div class="flex items-center gap-3">
+                <button id="stop-audio-btn" onclick="stopAudio()" class="text-red-400 hover:text-red-300 transition-all active:scale-90 duration-200 hidden" title="Stop Audio">
+                    <span translate="no" class="material-symbols-outlined notranslate text-[18px]">stop_circle</span>
+                </button>
+                <button id="mic-btn" onclick="startDictation()" class="text-text-secondary hover:text-primary transition-all active:scale-90 duration-200" title="Dictate">
+                    <span translate="no" class="material-symbols-outlined notranslate text-[18px]">mic</span>
+                </button>
+                <input type="file" id="image-upload" accept="image/*" class="hidden" />
+                <button onclick="document.getElementById('image-upload').click()" class="text-text-secondary hover:text-primary transition-all active:scale-90 duration-200" title="Upload Photo">
+                    <span translate="no" class="material-symbols-outlined notranslate text-[18px]">photo_camera</span>
+                </button>
+            </div>
+        </div>
+    </footer>
 </div>
 
 <script>
@@ -119,45 +127,77 @@
     function stopAudio() {
         if (currentAudio) {
             currentAudio.pause();
-            currentAudio.currentTime = 0; // Reset audio to beginning
+            currentAudio.currentTime = 0;
             currentAudio = null;
         }
-        // Hide the stop button when pressed
         document.getElementById('stop-audio-btn').style.display = 'none';
     }
 
     // --- 1. UI Toggles ---
     function toggleChat() {
         const chatWidget = document.getElementById('chat-widget');
-        const chatToggle = document.getElementById('chat-toggle');
+        const chatNotification = document.getElementById('chat-notification');
+        const toggleIcon = document.querySelector('#chat-toggle .material-symbols-outlined');
+        
         if (chatWidget.style.display === 'none' || chatWidget.style.display === '') {
             chatWidget.style.display = 'flex';
-            chatToggle.style.display = 'none';
+            chatNotification.style.display = 'none';
             document.getElementById('chat-input').focus();
+            toggleIcon.innerText = 'close';
         } else {
             chatWidget.style.display = 'none';
-            chatToggle.style.display = 'block';
+            toggleIcon.innerText = 'psychology';
         }
     }
 
+    setTimeout(() => {
+        const notif = document.getElementById('chat-notification');
+        if(document.getElementById('chat-widget').style.display !== 'flex') {
+            notif.style.display = 'block';
+        }
+    }, 2000);
+
     // --- 2. CSRF Helper ---
     function getCSRFToken() {
-        return document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const csrfTokenElement = document.querySelector('[name=csrfmiddlewaretoken]');
+        return csrfTokenElement ? csrfTokenElement.value : '';
     }
 
     // --- 3. UI Helpers ---
-    function addMessageToUI(text, className, id = null) {
+    function addMessageToUI(text, sender, id = null) {
         const messagesDiv = document.getElementById('chat-messages');
         const msgDiv = document.createElement('div');
-        msgDiv.className = `message ${className}`;
-        msgDiv.innerHTML = text; 
+        
+        if (sender === 'user') {
+            msgDiv.className = `flex flex-col items-end self-end max-w-[90%] mb-4`;
+            msgDiv.innerHTML = `
+                <div class="flex items-center gap-2 mb-1.5 pr-1">
+                    <span class="text-[10px] text-text-secondary uppercase font-medium tracking-wide">You</span>
+                </div>
+                <div class="bg-primary text-black rounded-2xl rounded-tr-sm p-3 px-4 text-sm leading-relaxed shadow-sm font-medium">
+                    ${text}
+                </div>
+            `;
+        } else {
+            msgDiv.className = `flex flex-col items-start max-w-[95%] mb-4`;
+            msgDiv.innerHTML = `
+                <div class="flex items-center gap-2 mb-1.5 pl-1">
+                    <span translate="no" class="material-symbols-outlined notranslate text-[12px] text-primary">psychology</span>
+                    <span class="text-[10px] text-text-secondary uppercase font-medium tracking-wide">AgriBot</span>
+                </div>
+                <div class="bg-white/5 border border-white/10 rounded-2xl rounded-tl-sm p-4 text-sm text-white leading-relaxed shadow-sm">
+                    ${text}
+                </div>
+            `;
+        }
+        
         if (id) msgDiv.id = id;
         messagesDiv.appendChild(msgDiv);
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
         return id || 'msg-' + Date.now();
     }
 
-    // --- 4. TEXT MESSAGE LOGIC (NLP Master RAG Pipeline) ---
+    // --- 4. TEXT MESSAGE LOGIC ---
     function handleEnter(event) { if (event.key === 'Enter') sendTextMessage(); }
 
     async function sendTextMessage() {
@@ -167,11 +207,11 @@
         
         if (!message) return;
 
-        addMessageToUI(message, 'user-message');
+        addMessageToUI(message, 'user');
         inputField.value = '';
 
         const loadingId = 'loading-' + Date.now();
-        addMessageToUI('...', 'bot-message', loadingId);
+        addMessageToUI('<div class="flex items-center gap-2 text-text-secondary"><span translate="no" class="material-symbols-outlined notranslate animate-spin text-[16px]">refresh</span> Processing...</div>', 'bot', loadingId);
 
         try {
             const response = await fetch('/api/chat/', {
@@ -187,76 +227,66 @@
             document.getElementById(loadingId).remove();
 
             if (data.response) {
-                let formattedText = data.response.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+                let formattedText = data.response.replace(/\*\*(.*?)\*\*/g, '<strong class="text-primary font-semibold">$1</strong>').replace(/\n/g, '<br>');
                 
-                // --- NEW UI FEATURE: DYNAMIC INPUT FIELDS FOR MISSING DATA ---
                 if (data.missing_parameters && data.missing_parameters.length > 0) {
-                    let formHtml = `<div style="margin-top: 12px; background: #e8f5e9; padding: 12px; border-radius: 8px; border: 1px solid #c8e6c9;">`;
+                    let formHtml = `<div class="mt-4 bg-black/40 rounded-xl p-4 border border-white/5">`;
                     
                     data.missing_parameters.forEach(param => {
                         let label = param.length === 1 ? param.toUpperCase() : param.charAt(0).toUpperCase() + param.slice(1);
                         formHtml += `
-                            <div style="margin-bottom: 8px;">
-                                <label style="font-size: 12px; font-weight: bold; color: #2e7d32;">${label}:</label>
+                            <div class="mb-3">
+                                <label class="block text-[11px] text-text-secondary uppercase tracking-wider mb-1">${label}</label>
                                 <input type="number" step="any" id="missing-input-${param}" placeholder="Enter ${label}" 
-                                       style="width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #a5d6a7; margin-top: 4px; box-sizing: border-box;">
+                                       class="w-full bg-white/5 text-white border border-white/10 rounded-lg p-2 text-sm focus:border-primary/50 focus:bg-white/10 outline-none transition-all">
                             </div>`;
                     });
                     
                     formHtml += `<button onclick="submitMissingParams(event, '${data.missing_parameters.join(',')}')" 
-                                 style="background: #2e7d32; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 8px;">
+                                 class="w-full btn-pill btn-primary text-xs py-2 mt-2">
                                  Submit Data
                                  </button>
                                  </div>`;
                     
                     formattedText += formHtml;
                 }
-                // -------------------------------------------------------------
 
-                addMessageToUI(formattedText, 'bot-message');
-                speakText(data.response); // It will only speak the text, not read the HTML form code!
+                addMessageToUI(formattedText, 'bot');
+                speakText(data.response);
             } else {
-                addMessageToUI("Sorry, I encountered an error processing your query.", 'bot-message');
+                addMessageToUI('<span class="text-red-400">Error processing query.</span>', 'bot');
             }
         } catch (error) {
             document.getElementById(loadingId).remove();
-            addMessageToUI("Error connecting to server. Is the backend running?", 'bot-message');
+            addMessageToUI('<span class="text-red-400">Connection failure. System offline.</span>', 'bot');
         }
     }
 
-    // --- NEW UI HELPER: HANDLE IN-CHAT FORM SUBMISSION ---
     function submitMissingParams(event, paramsString) {
         const params = paramsString.split(',');
         let submissionString = "";
         let isComplete = true;
 
-        // Collect all the values the user typed into the dynamic boxes
         params.forEach(param => {
             const inputVal = document.getElementById(`missing-input-${param}`).value;
-            if (!inputVal) {
-                isComplete = false;
-            } else {
-                submissionString += `${param}=${inputVal} `;
-            }
+            if (!inputVal) isComplete = false;
+            else submissionString += `${param}=${inputVal} `;
         });
 
         if (!isComplete) {
-            alert("Please fill in all requested fields to calculate the recommendation.");
+            alert("Please complete all required fields.");
             return;
         }
 
-        // Disable the form button and inputs so they can't double-click it
         event.target.disabled = true;
         event.target.innerText = "Submitting...";
         params.forEach(param => document.getElementById(`missing-input-${param}`).disabled = true);
 
-        // Secretly place the formatted string into the main chat input and click send!
-        const chatInput = document.getElementById('chat-input');
-        chatInput.value = submissionString.trim();
+        document.getElementById('chat-input').value = submissionString.trim();
         sendTextMessage();
     }
 
-    // --- 5. IMAGE MESSAGE LOGIC (ResNet Disease Detection) ---
+    // --- 5. IMAGE MESSAGE LOGIC ---
     const imageUpload = document.getElementById('image-upload');
     const previewContainer = document.getElementById('image-preview-container');
     const imagePreview = document.getElementById('image-preview');
@@ -282,10 +312,10 @@
         const file = imageUpload.files[0];
         if (!file) return;
 
-        addMessageToUI(`<img src="${imagePreview.src}" style="max-width: 100%; border-radius: 8px;">`, 'user-message');
+        addMessageToUI(`<img src="${imagePreview.src}" class="max-w-[200px] rounded-xl border border-primary/30 mt-1 shadow-sm">`, 'user');
         cancelImage(); 
 
-        const loadingId = addMessageToUI('🔍 Analyzing image...', 'bot-message', 'loading-' + Date.now());
+        const loadingId = addMessageToUI('<div class="flex items-center gap-2 text-text-secondary"><span translate="no" class="material-symbols-outlined notranslate animate-spin text-[16px]">refresh</span> Analyzing image...</div>', 'bot', 'loading-' + Date.now());
 
         const formData = new FormData();
         formData.append('plant_image', file);
@@ -302,24 +332,26 @@
 
             if (data.status === 'success') {
                 const isError = data.disease === 'Unrecognized Image';
-                const borderColor = isError ? '#ff9800' : '#4CAF50';
+                const borderColor = isError ? 'border-red-400' : 'border-primary';
+                const textColor = isError ? 'text-red-400' : 'text-primary';
+                const bgAlert = isError ? 'bg-red-400/10' : 'bg-primary/10';
                 
                 const resultHtml = `
-                    <div style="margin-bottom: 8px; background: white; padding: 5px; border-radius: 4px; border: 1px solid ${borderColor};">
-                        <strong>${isError ? 'Alert:' : 'Diagnosis:'}</strong> ${data.disease} <br>
-                        <small>Confidence: ${data.confidence}</small>
+                    <div class="mb-3 ${bgAlert} p-3 rounded-xl border ${borderColor}">
+                        <div class="text-[10px] uppercase tracking-wider ${textColor} font-semibold mb-1">${isError ? 'Alert' : 'Diagnosis'}</div> 
+                        <div class="text-base text-white font-medium">${data.disease}</div>
+                        <div class="text-[10px] text-text-secondary mt-1">Confidence: ${data.confidence}</div>
                     </div>
-                    <div>${data.bot_response.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>')}</div>
+                    <div class="text-sm leading-relaxed">${data.bot_response.replace(/\*\*(.*?)\*\*/g, '<strong class="text-primary font-semibold">$1</strong>').replace(/\n/g, '<br>')}</div>
                 `;
-                addMessageToUI(resultHtml, 'bot-message');
+                addMessageToUI(resultHtml, 'bot');
                 speakText(data.bot_response);
-                
             } else {
-                addMessageToUI(`❌ Error: ${data.message}`, 'bot-message');
+                addMessageToUI(`<span class="text-red-400">Error: ${data.message}</span>`, 'bot');
             }
         } catch (error) {
             document.getElementById(loadingId).remove();
-            addMessageToUI('❌ Failed to connect to the server.', 'bot-message');
+            addMessageToUI('<span class="text-red-400">Failed to connect to Neural Net.</span>', 'bot');
         }
     }
 
@@ -338,70 +370,54 @@
             recognition.lang = langSelect.value; 
 
             recognition.onstart = function() {
-                micBtn.innerHTML = '🔴';
+                micBtn.innerHTML = '<span translate="no" class="material-symbols-outlined notranslate text-[18px] text-primary animate-pulse">mic</span>';
                 chatInput.placeholder = "Listening...";
             };
 
             recognition.onresult = function(event) {
                 const transcript = event.results[0][0].transcript;
                 chatInput.value = transcript;
-                micBtn.innerHTML = '🎤';
-                chatInput.placeholder = "Type or speak...";
+                micBtn.innerHTML = '<span translate="no" class="material-symbols-outlined notranslate text-[18px]">mic</span>';
+                chatInput.placeholder = "Message AgriBot...";
             };
 
             recognition.onerror = function(event) {
-                console.error("Speech recognition error:", event.error);
-                micBtn.innerHTML = '🎤';
-                chatInput.placeholder = "Error hearing you. Try again.";
+                micBtn.innerHTML = '<span translate="no" class="material-symbols-outlined notranslate text-[18px]">mic</span>';
+                chatInput.placeholder = "Audio input error.";
             };
 
             recognition.onspeechend = function() {
                 recognition.stop();
-                micBtn.innerHTML = '🎤';
-                chatInput.placeholder = "Type or speak...";
+                micBtn.innerHTML = '<span translate="no" class="material-symbols-outlined notranslate text-[18px]">mic</span>';
+                if(!chatInput.value) chatInput.placeholder = "Message AgriBot...";
             };
 
             recognition.start();
         } else {
-            alert("Speech Recognition is not supported in this browser. Please use Chrome or Edge.");
+            alert("Speech Recognition not supported in this interface.");
         }
     }
 
     // --- 7. TEXT TO SPEECH (BACKEND CLOUD AUDIO) ---
     function speakText(text) {
-        // 1. Stop any currently playing audio before starting a new one
         stopAudio();
-
-        // 2. Heavy Regex Cleaning to remove non-spoken characters
-        // First, remove HTML tags like <br> or <strong>
         let cleanText = text.replace(/<[^>]*>?/gm, ''); 
-        
-        // Remove Markdown formatting (asterisks, hashtags, dashes, underscores)
         cleanText = cleanText.replace(/[*#_\-`~]/g, ''); 
-        
-        // Remove specific punctuation that TTS reads out loud (commas, colons, brackets)
-        // Note: Periods and question marks are kept so the bot pauses between sentences naturally.
         cleanText = cleanText.replace(/[,;:'"()[\]{}]/g, ' '); 
-        
-        // Remove double spaces left behind by deleted characters
         cleanText = cleanText.replace(/\s+/g, ' ').trim();
         
-        // 3. Fetch Language and Execute
         const langSelect = document.getElementById('chat-lang').value;
         const url = `/api/speak/?text=${encodeURIComponent(cleanText)}&lang=${langSelect}`;
         
         currentAudio = new Audio(url);
         
-        // Show the Stop button now that audio is loading
         const stopBtn = document.getElementById('stop-audio-btn');
-        stopBtn.style.display = 'inline-block';
+        stopBtn.style.display = 'block';
         
         currentAudio.play().catch(e => {
-            console.error("Audio play failed:", e);
-            stopBtn.style.display = 'none'; // Hide if auto-play is blocked
+            stopBtn.style.display = 'none'; 
         });
 
-        // Automatically hide the Stop button when the voice finishes speaking
         currentAudio.onended = function() {
             stopBtn.style.display = 'none';
             currentAudio = null;

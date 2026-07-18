@@ -1,65 +1,81 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card shadow-sm border-0 mb-5">
-            <div class="card-body p-5">
-                <h2 class="text-center text-success mb-4">🌾 Crop Recommendation</h2>
-                <p class="text-center text-muted mb-4">Enter your soil nutrients and local weather parameters to get the optimal crop recommendation from our ML model.</p>
-
-                <form method="POST">
-                    {% csrf_token %} 
-                    
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold">Nitrogen (N)</label>
-                            <input type="number" step="any" name="nitrogen" class="form-control" placeholder="e.g. 90" required>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold">Phosphorous (P)</label>
-                            <input type="number" step="any" name="phosphorous" class="form-control" placeholder="e.g. 42" required>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold">Potassium (K)</label>
-                            <input type="number" step="any" name="potassium" class="form-control" placeholder="e.g. 43" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Temperature (°C)</label>
-                            <input type="number" step="any" name="temperature" class="form-control" placeholder="e.g. 20.8" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Humidity (%)</label>
-                            <input type="number" step="any" name="humidity" class="form-control" placeholder="e.g. 82.0" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">pH Level</label>
-                            <input type="number" step="any" name="ph" class="form-control" placeholder="e.g. 6.5" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Rainfall (mm)</label>
-                            <input type="number" step="any" name="rainfall" class="form-control" placeholder="e.g. 202.9" required>
-                        </div>
-                    </div>
-                    <div class="d-grid mt-4">
-                        <button type="submit" class="btn btn-success btn-lg">Predict Best Crop</button>
-                    </div>
-                </form>
-
-                {% if result %}
-                <div class="alert alert-success mt-4 text-center shadow-sm">
-                    <h4 class="mb-0">Recommended Crop: <strong>{{ result }}</strong></h4>
-                </div>
-                {% endif %}
-
-                {% if error %}
-                <div class="alert alert-danger mt-4 text-center shadow-sm">
-                    <p class="mb-0">{{ error }}</p>
-                </div>
-                {% endif %}
-                
-            </div>
+<div class="max-w-3xl mx-auto w-full mt-10 relative z-10 flex flex-col gap-10">
+    
+    <!-- Page Header -->
+    <div class="flex flex-col items-center text-center gap-4">
+        <div class="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-2">
+            <span translate="no" class="material-symbols-outlined notranslate text-primary text-3xl">potted_plant</span>
         </div>
+        <h2 class="text-3xl font-semibold text-white tracking-tight">Crop Recommendation</h2>
+        <p class="text-sm text-text-secondary max-w-xl leading-relaxed">
+            Enter your soil nutrients and local weather parameters to get the optimal crop recommendation from our ML model.
+        </p>
     </div>
+
+    <!-- Main Form -->
+    <section class="glass-panel p-8 md:p-10 relative overflow-hidden">
+        <form method="POST" class="flex flex-col gap-6">
+            {% csrf_token %} 
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-medium text-text-secondary uppercase tracking-wider">Nitrogen (N)</label>
+                    <input type="number" step="any" name="nitrogen" class="form-control rounded-xl px-4 py-3 text-sm transition-all focus:ring-1 focus:ring-primary/50" placeholder="e.g. 90" required>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-medium text-text-secondary uppercase tracking-wider">Phosphorous (P)</label>
+                    <input type="number" step="any" name="phosphorous" class="form-control rounded-xl px-4 py-3 text-sm transition-all focus:ring-1 focus:ring-primary/50" placeholder="e.g. 42" required>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-medium text-text-secondary uppercase tracking-wider">Potassium (K)</label>
+                    <input type="number" step="any" name="potassium" class="form-control rounded-xl px-4 py-3 text-sm transition-all focus:ring-1 focus:ring-primary/50" placeholder="e.g. 43" required>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-medium text-text-secondary uppercase tracking-wider">Temperature (°C)</label>
+                    <input type="number" step="any" name="temperature" class="form-control rounded-xl px-4 py-3 text-sm transition-all focus:ring-1 focus:ring-primary/50" placeholder="e.g. 20.8" required>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-medium text-text-secondary uppercase tracking-wider">Humidity (%)</label>
+                    <input type="number" step="any" name="humidity" class="form-control rounded-xl px-4 py-3 text-sm transition-all focus:ring-1 focus:ring-primary/50" placeholder="e.g. 82.0" required>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-medium text-text-secondary uppercase tracking-wider">pH Level</label>
+                    <input type="number" step="any" name="ph" class="form-control rounded-xl px-4 py-3 text-sm transition-all focus:ring-1 focus:ring-primary/50" placeholder="e.g. 6.5" required>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-medium text-text-secondary uppercase tracking-wider">Rainfall (mm)</label>
+                    <input type="number" step="any" name="rainfall" class="form-control rounded-xl px-4 py-3 text-sm transition-all focus:ring-1 focus:ring-primary/50" placeholder="e.g. 202.9" required>
+                </div>
+            </div>
+            
+            <div class="mt-4 flex justify-center">
+                <button type="submit" class="btn-pill btn-primary px-8 py-3 w-full md:w-auto">
+                    Predict Best Crop
+                    <div class="btn-icon-circle w-6 h-6">
+                        <span translate="no" class="material-symbols-outlined notranslate text-[16px]">psychology</span>
+                    </div>
+                </button>
+            </div>
+        </form>
+
+        {% if result %}
+        <div class="mt-8 p-6 rounded-2xl bg-primary/10 border border-primary/30 flex flex-col items-center text-center">
+            <span class="text-xs font-medium uppercase tracking-widest text-primary mb-2">Recommended Crop</span>
+            <h4 class="text-3xl font-semibold text-white">{{ result }}</h4>
+        </div>
+        {% endif %}
+
+        {% if error %}
+        <div class="mt-8 p-6 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-center">
+            <span translate="no" class="material-symbols-outlined notranslate text-red-400 mr-2">error</span>
+            <p class="text-red-400 text-sm">{{ error }}</p>
+        </div>
+        {% endif %}
+    </section>
 </div>
 {% endblock %}

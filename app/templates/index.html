@@ -1,56 +1,87 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="text-center mb-5">
-    <h1 class="display-4 fw-bold" style="color: #2e7d32;">Welcome to AgriBot</h1>
-    <p class="lead text-muted">Your AI-powered assistant for smarter, data-driven farming.</p>
-</div>
-
-<div class="row g-4 justify-content-center">
+<!-- Hero Section -->
+<section class="flex flex-col items-center justify-center text-center mt-12 mb-20 max-w-3xl">
+    <h1 class="text-5xl md:text-6xl font-semibold tracking-tight text-white leading-tight mb-6">
+        Your AI Assistant <br>
+        <span class="text-primary font-medium">for Intelligent Farming</span>
+    </h1>
+    <p class="text-text-secondary text-base md:text-lg mb-10 max-w-2xl leading-relaxed">
+        Unlock powerful AI tools for your agricultural business — predict crop yields, analyze soil nutrients, and detect diseases with zero coding. Scalable. Secure. Lightning fast.
+    </p>
     
-    <div class="col-md-6 col-lg-5">
-        <div class="card h-100 shadow-sm border-0 text-center p-4">
-            <div class="card-body">
-                <div class="mb-3" style="font-size: 3rem;">🌾</div>
-                <h4 class="card-title fw-bold">Crop Recommendation</h4>
-                <p class="card-text text-muted mb-4">Input your soil nutrients and weather data to discover the most profitable crop to plant.</p>
-                <a href="{% url 'predict_crop' %}" class="btn btn-outline-success px-4 rounded-pill">Try it now</a>
+    <div class="flex items-center gap-4">
+        <a href="{% url 'predict_crop' %}" class="btn-pill btn-primary px-6 py-3 text-sm">
+            Start Analysis
+            <div class="btn-icon-circle w-6 h-6">
+                <span translate="no" class="material-symbols-outlined notranslate text-[16px]">arrow_outward</span>
             </div>
-        </div>
+        </a>
+        <a href="#" class="btn-pill btn-outline px-6 py-3 text-sm">
+            View Dashboard
+        </a>
     </div>
+</section>
 
-    <div class="col-md-6 col-lg-5">
-        <div class="card h-100 shadow-sm border-0 text-center p-4">
-            <div class="card-body">
-                <div class="mb-3" style="font-size: 3rem;">🧪</div>
-                <h4 class="card-title fw-bold">Fertilizer Recommendation</h4>
-                <p class="card-text text-muted mb-4">Discover the exact NPK nutrient blend your soil needs to maximize growth for your target crop.</p>
-                <a href="{% url 'predict_fertilizer' %}" class="btn btn-outline-success px-4 rounded-pill">Try it now</a>
+<!-- Floating Glass Panels Grid -->
+<div class="w-full relative min-h-[500px] flex justify-center mt-10">
+    
+    <!-- We create a 2x2 grid for mobile, but on desktop they can float around slightly offset -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl relative z-10">
+        
+        <!-- Feature 1: Crop Recommendation -->
+        <a href="{% url 'predict_crop' %}" class="glass-panel p-8 flex flex-col items-start gap-4 hover:-translate-y-1 transition-transform group">
+            <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10 group-hover:bg-primary/20 group-hover:border-primary/50 transition-colors">
+                <span translate="no" class="material-symbols-outlined notranslate text-primary text-[20px]">potted_plant</span>
             </div>
-        </div>
-    </div>
-
-    <div class="col-md-6 col-lg-5">
-        <div class="card h-100 shadow-sm border-0 text-center p-4">
-            <div class="card-body">
-                <div class="mb-3" style="font-size: 3rem;">🍂</div>
-                <h4 class="card-title fw-bold">Disease Detection</h4>
-                <p class="card-text text-muted mb-4">Upload a photo of a sick plant leaf and our deep learning model will diagnose the disease.</p>
-                <a href="{% url 'predict_disease' %}" class="btn btn-outline-success px-4 rounded-pill">Try it now</a>
+            <div>
+                <h3 class="text-xl font-medium text-white mb-2">Crop Recommendation</h3>
+                <p class="text-sm text-text-secondary leading-relaxed">
+                    Input your soil nutrients and weather data to discover the most profitable crop to plant. Our AI analyzes historical patterns.
+                </p>
             </div>
-        </div>
-    </div>
+        </a>
 
-    <div class="col-md-6 col-lg-5">
-        <div class="card h-100 shadow-sm border-0 text-center p-4">
-            <div class="card-body">
-                <div class="mb-3" style="font-size: 3rem;">📈</div>
-                <h4 class="card-title fw-bold">Yield Prediction</h4>
-                <p class="card-text text-muted mb-4">Estimate your harvest volume based on historical weather, pesticide usage, and crop type.</p>
-                <a href="{% url 'predict_yield' %}" class="btn btn-outline-success px-4 rounded-pill">Try it now</a>
+        <!-- Feature 2: Yield Prediction -->
+        <a href="{% url 'predict_yield' %}" class="glass-panel p-8 flex flex-col items-start gap-4 hover:-translate-y-1 transition-transform group md:translate-y-12">
+            <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10 group-hover:bg-primary/20 group-hover:border-primary/50 transition-colors">
+                <span translate="no" class="material-symbols-outlined notranslate text-primary text-[20px]">trending_up</span>
             </div>
-        </div>
-    </div>
+            <div>
+                <h3 class="text-xl font-medium text-white mb-2">Yield Prediction</h3>
+                <p class="text-sm text-text-secondary leading-relaxed">
+                    Estimate your harvest volume accurately based on environmental data, pesticide usage, and crop variety.
+                </p>
+            </div>
+        </a>
 
+        <!-- Feature 3: Nutrient Analysis -->
+        <a href="{% url 'predict_fertilizer' %}" class="glass-panel p-8 flex flex-col items-start gap-4 hover:-translate-y-1 transition-transform group">
+            <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10 group-hover:bg-primary/20 group-hover:border-primary/50 transition-colors">
+                <span translate="no" class="material-symbols-outlined notranslate text-primary text-[20px]">science</span>
+            </div>
+            <div>
+                <h3 class="text-xl font-medium text-white mb-2">Nutrient Analysis</h3>
+                <p class="text-sm text-text-secondary leading-relaxed">
+                    Maximize growth by checking NPK values. Discover the exact fertilizer blend needed for optimal soil health.
+                </p>
+            </div>
+        </a>
+
+        <!-- Feature 4: Disease Detection -->
+        <a href="{% url 'predict_disease' %}" class="glass-panel p-8 flex flex-col items-start gap-4 hover:-translate-y-1 transition-transform group md:translate-y-12">
+            <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10 group-hover:bg-primary/20 group-hover:border-primary/50 transition-colors">
+                <span translate="no" class="material-symbols-outlined notranslate text-primary text-[20px]">biotech</span>
+            </div>
+            <div>
+                <h3 class="text-xl font-medium text-white mb-2">Neural Disease Detection</h3>
+                <p class="text-sm text-text-secondary leading-relaxed">
+                    Upload a clear photo of a plant leaf, and our deep learning model will accurately identify pathogens and monitor health.
+                </p>
+            </div>
+        </a>
+
+    </div>
 </div>
 {% endblock %}

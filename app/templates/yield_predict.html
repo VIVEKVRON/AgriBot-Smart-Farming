@@ -1,75 +1,87 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card shadow-sm border-0 mb-5">
-            <div class="card-body p-5">
-                <h2 class="text-center text-success mb-4">📈 Crop Yield Prediction</h2>
-                <p class="text-center text-muted mb-4">Estimate your harvest yield (in hg/ha) based on historical weather, pesticide usage, and region.</p>
-
-                <form method="POST">
-                    {% csrf_token %} 
-                    
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Year</label>
-                            <input type="number" name="Year" class="form-control" value="2026" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Average Rainfall (mm/year)</label>
-                            <input type="number" step="any" name="average_rain_fall_mm_per_year" class="form-control" placeholder="e.g. 1083" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Pesticides (Tonnes)</label>
-                            <input type="number" step="any" name="pesticides_tonnes" class="form-control" placeholder="e.g. 45000" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Average Temperature (°C)</label>
-                            <input type="number" step="any" name="avg_temp" class="form-control" placeholder="e.g. 26.5" required>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Country/Area</label>
-                            <select name="Area" class="form-select" required>
-                                <option value="India">India</option>
-                                <option value="Brazil">Brazil</option>
-                                <option value="United States of America">United States</option>
-                                <option value="China">China</option>
-                                <option value="Australia">Australia</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Crop/Item</label>
-                            <select name="Item" class="form-select" required>
-                                <option value="Rice, paddy">Rice, paddy</option>
-                                <option value="Wheat">Wheat</option>
-                                <option value="Maize">Maize (Corn)</option>
-                                <option value="Soybeans">Soybeans</option>
-                                <option value="Potatoes">Potatoes</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="d-grid mt-4">
-                        <button type="submit" class="btn btn-success btn-lg">Predict Yield</button>
-                    </div>
-                </form>
-
-                {% if result %}
-                <div class="alert alert-success mt-4 text-center shadow-sm">
-                    <h4 class="mb-0">Estimated Yield: <strong>{{ result }}</strong></h4>
-                </div>
-                {% endif %}
-
-                {% if error %}
-                <div class="alert alert-danger mt-4 text-center shadow-sm">
-                    <p class="mb-0">{{ error }}</p>
-                </div>
-                {% endif %}
-                
-            </div>
+<div class="max-w-3xl mx-auto w-full mt-10 relative z-10 flex flex-col gap-10">
+    
+    <!-- Page Header -->
+    <div class="flex flex-col items-center text-center gap-4">
+        <div class="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-2">
+            <span translate="no" class="material-symbols-outlined notranslate text-primary text-3xl">trending_up</span>
         </div>
+        <h2 class="text-3xl font-semibold text-white tracking-tight">Crop Yield Prediction</h2>
+        <p class="text-sm text-text-secondary max-w-xl leading-relaxed">
+            Estimate your harvest yield (in hg/ha) based on historical weather, pesticide usage, and region.
+        </p>
     </div>
+
+    <!-- Main Form -->
+    <section class="glass-panel p-8 md:p-10 relative overflow-hidden">
+        <form method="POST" class="flex flex-col gap-6">
+            {% csrf_token %} 
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-medium text-text-secondary uppercase tracking-wider">Year</label>
+                    <input type="number" name="Year" class="form-control rounded-xl px-4 py-3 text-sm transition-all focus:ring-1 focus:ring-primary/50" value="2026" required>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-medium text-text-secondary uppercase tracking-wider">Average Rainfall (mm/year)</label>
+                    <input type="number" step="any" name="average_rain_fall_mm_per_year" class="form-control rounded-xl px-4 py-3 text-sm transition-all focus:ring-1 focus:ring-primary/50" placeholder="e.g. 1083" required>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-medium text-text-secondary uppercase tracking-wider">Pesticides (Tonnes)</label>
+                    <input type="number" step="any" name="pesticides_tonnes" class="form-control rounded-xl px-4 py-3 text-sm transition-all focus:ring-1 focus:ring-primary/50" placeholder="e.g. 45000" required>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-medium text-text-secondary uppercase tracking-wider">Average Temperature (°C)</label>
+                    <input type="number" step="any" name="avg_temp" class="form-control rounded-xl px-4 py-3 text-sm transition-all focus:ring-1 focus:ring-primary/50" placeholder="e.g. 26.5" required>
+                </div>
+                
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-medium text-text-secondary uppercase tracking-wider">Country/Area</label>
+                    <select name="Area" class="form-select rounded-xl px-4 py-3 text-sm transition-all focus:ring-1 focus:ring-primary/50 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%208l5%205%205-5%22%20stroke%3D%22%23999%22%20stroke-width%3D%222%22%20fill%3D%22none%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[position:right_1rem_center]" required>
+                        <option value="India">India</option>
+                        <option value="Brazil">Brazil</option>
+                        <option value="United States of America">United States</option>
+                        <option value="China">China</option>
+                        <option value="Australia">Australia</option>
+                    </select>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="text-xs font-medium text-text-secondary uppercase tracking-wider">Crop/Item</label>
+                    <select name="Item" class="form-select rounded-xl px-4 py-3 text-sm transition-all focus:ring-1 focus:ring-primary/50 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%208l5%205%205-5%22%20stroke%3D%22%23999%22%20stroke-width%3D%222%22%20fill%3D%22none%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[position:right_1rem_center]" required>
+                        <option value="Rice, paddy">Rice, paddy</option>
+                        <option value="Wheat">Wheat</option>
+                        <option value="Maize">Maize (Corn)</option>
+                        <option value="Soybeans">Soybeans</option>
+                        <option value="Potatoes">Potatoes</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mt-4 flex justify-center">
+                <button type="submit" class="btn-pill btn-primary px-8 py-3 w-full md:w-auto">
+                    Predict Yield
+                    <div class="btn-icon-circle w-6 h-6">
+                        <span translate="no" class="material-symbols-outlined notranslate text-[16px]">psychology</span>
+                    </div>
+                </button>
+            </div>
+        </form>
+
+        {% if result %}
+        <div class="mt-8 p-6 rounded-2xl bg-primary/10 border border-primary/30 flex flex-col items-center text-center">
+            <span class="text-xs font-medium uppercase tracking-widest text-primary mb-2">Estimated Yield</span>
+            <h4 class="text-3xl font-semibold text-white">{{ result }}</h4>
+        </div>
+        {% endif %}
+
+        {% if error %}
+        <div class="mt-8 p-6 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-center">
+            <span translate="no" class="material-symbols-outlined notranslate text-red-400 mr-2">error</span>
+            <p class="text-red-400 text-sm">{{ error }}</p>
+        </div>
+        {% endif %}
+    </section>
 </div>
 {% endblock %}
