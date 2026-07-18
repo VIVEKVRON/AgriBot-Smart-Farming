@@ -98,7 +98,7 @@ AgriBot is a state-of-the-art agricultural web platform designed to empower farm
 
 ## 👥 Team & Roles
 
-* **VIVEK V RON:** Backend Development
+* **VIVEK V RON:** ML Model Building | Backend Development | Team Lead
 * **VIVEK TUBAKI:** Backend Development
 * **VISHWANATH REDDY:** Frontend Development & Testing
 * **VISHWAS HAVALADA:** Frontend Development & Testing
