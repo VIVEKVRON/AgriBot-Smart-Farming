@@ -67,7 +67,7 @@ AgriBot is a state-of-the-art agricultural web platform designed to empower farm
 
 1. **Clone Repository**:
    ```bash
-   git clone <repo-url>
+   git clone https://github.com/VIVEKVRON/AgriBot-Smart-Farming
    cd agribot_project
    ```
 
