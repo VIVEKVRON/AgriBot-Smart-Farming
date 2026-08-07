@@ -88,7 +88,7 @@ AgriBot is a state-of-the-art agricultural web platform designed to empower farm
    Because the ML binaries are too large for GitHub, you must generate them locally from the source notebooks:
    - Run notebooks in `notebooks/` to generate `xgboost_crop_model.pkl`, `rf_yield_model.pkl`, `best_resnet_plant_model.h5`, and the FAISS vector index in `ml_models/faiss_agri_index/` using the manuals in `data/pdfs/`.
 
-5. **Run the Application**:
+5. **Run the Application Locally**:
    - Run database migrations:
      ```bash
      python manage.py migrate
@@ -98,6 +98,14 @@ AgriBot is a state-of-the-art agricultural web platform designed to empower farm
      python manage.py runserver
      ```
    Navigate to `http://127.0.0.1:8000/` to launch the platform.
+
+6. **Run via Docker (Optional)**:
+   If you prefer to run the application in an isolated container, ensure you have completed **Step 3** (creating `.env`) and **Step 4** (generating the ML models in `ml_models/`). Then, execute:
+   ```bash
+   docker build -t agribot .
+   docker run -p 8080:8080 --env-file .env agribot
+   ```
+   Navigate to `http://127.0.0.1:8080/`.
 
 ## 📖 Usage
 
