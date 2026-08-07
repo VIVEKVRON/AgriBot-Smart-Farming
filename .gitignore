@@ -17,3 +17,15 @@ ml_models/faiss_agri_index/
 
 # Environment Variables
 .env
+
+# Notebooks and Data
+.ipynb_checkpoints/
+*.csv
+*.tsv
+*.xlsx
+*.zip
+*.tar.gz
+*.json
+*.parquet
+*.h5
+*.pkl
