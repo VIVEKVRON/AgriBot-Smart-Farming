@@ -63,7 +63,7 @@ AgriBot is a state-of-the-art agricultural web platform designed to empower farm
 +---------------------------------------------------------------------------------------------------+
 ```
 
-## 🛠️ Installation & Setup
+## 🚀 Quick Start & Model Setup
 
 1. **Clone Repository**:
    ```bash
@@ -84,10 +84,19 @@ AgriBot is a state-of-the-art agricultural web platform designed to empower farm
    GROQ_API_KEY=your_groq_api_key_here
    ```
 
-4. **Run the Application**:
-   ```bash
-   python manage.py runserver
-   ```
+4. **Generate Local ML Models**:
+   Because the ML binaries are too large for GitHub, you must generate them locally from the source notebooks:
+   - Run notebooks in `notebooks/` to generate `xgboost_crop_model.pkl`, `rf_yield_model.pkl`, `best_resnet_plant_model.h5`, and the FAISS vector index in `ml_models/faiss_agri_index/` using the manuals in `data/pdfs/`.
+
+5. **Run the Application**:
+   - Run database migrations:
+     ```bash
+     python manage.py migrate
+     ```
+   - Start the Django server:
+     ```bash
+     python manage.py runserver
+     ```
    Navigate to `http://127.0.0.1:8000/` to launch the platform.
 
 ## 📖 Usage

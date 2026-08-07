@@ -11,9 +11,8 @@ media/
 media/*
 
 # Heavy Machine Learning Models (GitHub limits files to 100MB)
-ml_models/*.h5
-ml_models/*.pkl
-ml_models/faiss_agri_index/
+ml_models/*
+!ml_models/.gitkeep
 
 # Environment Variables
 .env
